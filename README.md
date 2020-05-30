@@ -1,2 +1,2 @@
 # CuriousLynx.github.io
-My litte project
+My litte personal project
