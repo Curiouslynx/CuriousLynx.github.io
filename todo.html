@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+  <style>
+    body {
+      font-family: 'Calibri';
+      font-size: 14pt;
+      background-color: rgb(227, 225, 215);
+    }
+
+    #todo {
+      list-style: none;
+
+      display: block;
+      width: 444px;
+      margin: 0 auto;
+    }
+
+    ul {
+      list-style-type: decimal;
+      padding-left: 30px;
+      margin-left: 0px;
+    }
+
+    li {
+      padding: 10px 0;
+      margin-left: 6px;
+      width: auto;
+    }
+
+    li:first-child {
+      padding-top: 22px;
+    }
+
+    li>div {
+      cursor: default;
+    }
+
+    .bold {
+      font-weight: bold;
+      color: #343230;
+      cursor: pointer;
+    }
+
+    .addButtonForm {
+      position: relative;
+      left: 0px;
+      font-weight: bold;
+      padding: 0;
+    }
+
+    .userInput {
+      visibility: hidden;
+      font-family: 'Calibri';
+      font-size: 14pt;
+    }
+
+    .userInput:focus {
+      visibility: visible;
+    }
+
+    li {
+      transition: 1s;
+    }
+
+    li:hover>form>input {
+      visibility: visible;
+    }
+
+
+    .add {
+      color: rgb(227, 225, 215);
+    }
+
+    .add:hover {
+      color: #234;
+    }
+  </style>
+  <script type="text/x-template" id="item-template">
+      <li>
+        <div :class="{bold: isFolder}" @click="toggle" @dblclick="makeFolder" @click.middle="delFromTemplate(parentItem, deepIndex)">
+          {{ item.name }} <span v-if="isFolder">{{ isOpen ? '▸	' : '▾' }}</span>
+        </div>
+        <ul v-show="isOpen" v-if="isFolder">
+          <tree-item v-for="(child, index) in item.children" :key="index" class="item" :item="child" :parentItem="item"
+            :deepIndex="index"
+            @make-folder="$emit('make-folder', $event)"
+            @add-item="$emit('add-item', $event)"
+            @delete-item="$emit('delete-item', $event)">
+            <!-- можно на месте: @delete-item="item.children.splice(index, 1)" -->
+          </tree-item>
+          <li class="add">
+            <form @submit.prevent="$emit('add-item', item)" class="addButtonForm">
+              <input type="text" name="newItemName" title="ENTER - ДОБАВИТЬ" class="userInput" onmouseover="this.focus();" onmouseout="document.body.focus();">
+            </form>
+          </li>
+        </ul>
+      </li>
+    </script>
+</head>
+
+<body>
+
+  <ul id="todo">
+    <tree-item class="item" :parentItem="treeData" :deepIndex="0" :item="treeData" @make-folder="makeFolder" @add-item="addItem" @delete-item="deleteItem"></tree-item>
+  </ul>
+
+
+  <script>
+
+    var saved = {
+      "name": "ToDo List",
+      "children": [
+        {
+          "name": "How to",
+          "children": [
+            {"name": "Double click this item to add a subitem."},
+            {"name": "Middle click this item to delete it."},
+            {"name": "Hover under the last item to add new by ENTER."}
+          ]
+        }
+      ]
+    };
+
+    var isLocalStorageAvailable = isAvailable('localStorage');
+    readFromLocalStorage();
+
+
+    function isAvailable(type) {
+      try {
+        var storage = window[type];
+        var x = '__storage_test__';
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+      }
+      catch (evt) {
+        return false;
+      }
+    }
+
+
+    function readFromLocalStorage() {
+      if (isLocalStorageAvailable) {
+        if (window.localStorage.saved) {
+          try {
+            window.saved = JSON.parse(window.localStorage.saved);
+          } catch (err) {
+            alert('Parsing error');
+          }
+        }
+      } else {
+        alert('localStorage не поддерживается');
+      }
+    }
+
+
+    function saveToLocalStorage() {
+      if (isLocalStorageAvailable) {
+        window.localStorage.saved = JSON.stringify(window.saved);
+      } else {
+        alert('localStorage не поддерживается');
+      }
+    };
+
+
+    Vue.component("tree-item", {
+      template: "#item-template",
+      props: {
+        item: Object, // тип передаваемого в компонент параметра
+        parentItem: Object,
+        deepIndex: Number
+      },
+      // свойство isOpen = false : в виде функции
+      data: function () {
+        return {
+          isOpen: false
+        };
+      },
+      computed: {
+        isFolder: function () {
+          return this.item.children && this.item.children.length;
+        }
+      },
+      methods: {
+        toggle: function () {
+          if (this.isFolder) {
+            this.isOpen = !this.isOpen;
+          }
+        },
+        makeFolder: function () {
+          if (!this.isFolder) {
+            this.$emit("make-folder", this.item);
+            this.isOpen = true;
+          }
+        },
+
+        delFromTemplate: function (target, id) {
+          this.$emit('delete-item', [].slice.call(arguments));
+        }
+      }
+    });
+
+
+    var vm = new Vue({
+      el: '#todo',
+      data: {
+        treeData: window.saved
+      },
+      methods: {
+        makeFolder: function (item) {
+          //Vue.set(obj, propName, value) динамически добавляет новые реактивные свойства во вложенные объекты (в корневые свойства нельзя)
+          Vue.set(item, 'children', []);
+          this.addItem(item);
+          saveToLocalStorage();
+        },
+
+        addItem: function (item) {
+          var userInput = '';
+          if (document.activeElement.tagName === 'INPUT') {
+            userInput = document.activeElement.value.trim();
+            document.activeElement.value = '';
+          } else {
+            userInput = prompt('ДОБАВИТЬ ПОДПУНКТ:', '');
+          }
+          if (userInput) {
+            item.children.push({
+              name: userInput
+            });
+            saveToLocalStorage();
+          } else {
+            alert('Пустая строка не добавляется. Введите текст.');
+          }
+        },
+
+        deleteItem: function (args) {
+          var parent = args[0];
+          var target = args[1];
+          parent.children.splice(target, 1);
+          saveToLocalStorage();
+        }
+      },
+    });
+
+  </script>
+
+</body>
+
+</html>
