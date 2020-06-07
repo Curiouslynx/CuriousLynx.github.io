@@ -132,6 +132,11 @@
     readFromLocalStorage();
 
 
+    window.addEventListener('storage', function (evt) {
+      readFromLocalStorage();
+    });
+
+
     function isAvailable(type) {
       try {
         var storage = window[type];
@@ -150,7 +155,7 @@
       if (isLocalStorageAvailable) {
         if (window.localStorage.saved) {
           try {
-            window.saved = JSON.parse(window.localStorage.saved);
+            window.saved.children = JSON.parse(window.localStorage.saved).children;
           } catch (err) {
             alert('Parsing error');
           }
