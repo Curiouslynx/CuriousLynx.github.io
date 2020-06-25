@@ -9,17 +9,26 @@
   <title>Quotes analysis</title>
   <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <style>
-    .params {display: flex; flex-wrap:wrap; align-items:center; justify-content:space-around; margin: 20px;}
+    .params {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      /* justify-content: space-around; */
+      justify-content: center;
+      margin: 20px;
+    }
+
+    .filters {
+      margin: 14px;
+    }
+
+    .apply {
+      margin-bottom: 30px;
+    }
+    .userInput {
+      width:100px;
+    }
   </style>
-  <script type="text/javascript">
-    (function (m, e, t, r, i, k, a) { m[i] = m[i] || function () {(m[i].a = m[i].a || []).push(arguments)};
-      m[i].l = 1 * new Date(); k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-    ym(64976653,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true});
-  </script>
-  <noscript>
-    <div><img src="https://mc.yandex.ru/watch/64976653" style="position:absolute; left:-9999px;" alt="" /></div>
-  </noscript>
 </head>
 
 <body>
@@ -40,61 +49,119 @@
 
   <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
     <h1 class="display-4">Quotes analysis</h1>
-    <p class="lead">(all prices in satoshi)</p>
   </div>
 
-  <div class="text-center">
-    Order by:
-    <select name="" id="sorting">
-      <option value="alpha">A - Z</option>
-      <option value="reverse">Z - A</option>
+
+  <div class="text-center filters">
+    <input type="radio" name="charttype" value="pnv" id="priceAndVolumes" checked> <label for="priceAndVolumes">Show price and volumes</label>
+    <input type="radio" name="charttype" value="anv" id="amplitudeAndVolumes"> <label for="amplitudeAndVolumes" title="In progress...">Show amplitude (high-low) and volumes</label>
+  </div>
+
+
+  <div class="text-center filters">
+    Base asset:
+    <select name="" id="base">
+      <option value="BTC">BTC (prices in satoshi)</option>
+      <option value="USDT">USDT (prices in dollars)</option>
     </select>
   </div>
 
-  <div class="params text-center">
-    <div class="leftParams">
-      Left column timeframe:
-      <select name="" id="leftTimeframe">
-        <option value="1M">1M</option>
-        <option value="1w">1W</option>
-        <option value="3d">3D</option>
-        <option value="1d" selected>1D</option>
-        <option value="12h">12h</option>
-        <option value="6h">6h</option>
-        <option value="4h">4h</option>
-        <option value="2h">2h</option>
-        <option value="1h">1h</option>
-        <option value="30m">30m</option>
-        <option value="15m">15m</option>
-        <option value="5m">5m</option>
-        <option value="3m">3m</option>
-        <option value="1m">1m</option>
-      </select>
-    </div>
-    <div class="rightParams">
-      Right column timeframe:
-      <select name="" id="rightTimeframe">
-        <option value="1M">1M</option>
-        <option value="1w">1W</option>
-        <option value="3d">3D</option>
-        <option value="1d">1D</option>
-        <option value="12h">12h</option>
-        <option value="6h">6h</option>
-        <option value="4h">4h</option>
-        <option value="2h">2h</option>
-        <option value="1h">1h</option>
-        <option value="30m">30m</option>
-        <option value="15m" selected>15m</option>
-        <option value="5m">5m</option>
-        <option value="3m">3m</option>
-        <option value="1m">1m</option>
-      </select>
-    </div>
+
+  <div class="text-center filters">
+    <span title="Sort type">Sort by:</span>
+    <select name="" id="sorting">
+      <option value="volumeDes">24h Volume ⇘</option>
+      <option value="volumeAsc">24h Volume ⇗</option>
+      <option value="changeDes">24h Price change % ⇘</option>
+      <option value="changeAsc">24h Price change % ⇗</option>
+      <option value="amplDes">24h Amplitude (H-L) ⇘</option>
+      <option value="amplAsc">24h Amplitude (H-L) ⇗</option>
+      <option value="amplDesP">24h Amplitude (H-L, %) ⇘</option>
+      <option value="amplAscP">24h Amplitude (H-L, %) ⇗</option>
+      <option value="tradesDes">24h Number of trades ⇘</option>
+      <option value="tradesAsc">24h Number of trades ⇗</option>
+      <option value="spreadDes">Spread (ASK-BID) ⇘</option>
+      <option value="spreadAsc">Spread (ASK-BID) ⇗</option>
+      <option value="priceDes">Last Price ⇘</option>
+      <option value="priceAsc">Last Price ⇗</option>
+      <option value="nameDes">Coin name ⇘</option>
+      <option value="nameAsc">Coin name ⇗</option>
+    </select>
   </div>
+
+
+  <div class="text-center filters">
+    <span title="Show only coins matching the condition">Show only coins with</span>
+    <select name="" id="filtering">
+      <option value="all">-</option>
+      <option value="byVolume24">24h volume</option>
+      <option value="byPriceChange24">24h price change %</option>
+      <option value="byTrades24">24h num. of trades</option>
+      <option value="byLastPrice">last price</option>
+      <!-- <option value="vvolumeUp">Spread (bid-ask)</option> -->
+    </select>
+    FROM (min):
+    <input id="limitFrom" class="userInput" type="number" placeholder="0" title="First select a filter!">
+    TO (max):
+    <input id="limitTo" class="userInput" type="number" placeholder="∞" title="First select a filter!">
+  </div>
+
+
+  <div class="params text-center">
+    <!-- <div class="leftParams"> -->
+    Left column timeframe:&nbsp;
+    <select name="" id="leftTimeframe">
+      <option value="1M">1M</option>
+      <option value="1w">1W</option>
+      <option value="3d">3D</option>
+      <option value="1d" selected>1D</option>
+      <option value="12h">12h</option>
+      <option value="6h">6h</option>
+      <option value="4h">4h</option>
+      <option value="2h">2h</option>
+      <option value="1h">1h</option>
+      <option value="30m">30m</option>
+      <option value="15m">15m</option>
+      <option value="5m">5m</option>
+      <option value="3m">3m</option>
+      <option value="1m">1m</option>
+    </select>
+    <!-- </div>
+    <div class="rightParams"> -->
+    &nbsp; &nbsp; &nbsp;
+    Right column timeframe:&nbsp;
+    <select name="" id="rightTimeframe">
+      <option value="1M">1M</option>
+      <option value="1w">1W</option>
+      <option value="3d">3D</option>
+      <option value="1d">1D</option>
+      <option value="12h">12h</option>
+      <option value="6h">6h</option>
+      <option value="4h">4h</option>
+      <option value="2h">2h</option>
+      <option value="1h">1h</option>
+      <option value="30m">30m</option>
+      <option value="15m" selected>15m</option>
+      <option value="5m">5m</option>
+      <option value="3m">3m</option>
+      <option value="1m">1m</option>
+    </select>
+    <!-- </div> -->
+  </div>
+
+
+  <!-- <div class="text-center filters">
+    <input type="checkbox" id="saveSettings"> save selected settings
+  </div> -->
+
+  <div class="text-center filters apply">
+    <button type="button" id="apply">Apply!</button>
+  </div>
+
 
   <div class="quotes"></div>
 
-  <p class="text-center">Press "Home" key to scroll to the top of the page &uarr;</p>
+  <p class="text-center" style="margin-top: 33px;">Press "Home" key to scroll top &uarr;</p>
 
   <div class="container">
 
@@ -102,7 +169,7 @@
     <footer class="pt-4 my-md-5 pt-md-5 border-top">
       <div class="row">
         <div class="col-12 col-md">
-          <img class="mb-2" src="img/logo.png" alt="" width="30" height="30">
+          <img class="mb-2" src="img/logo.png" alt="" width="24" height="24">
           <small class="d-block mb-3 text-muted">&copy; 2020</small>
         </div>
         <div class="col-6 col-md">
@@ -128,7 +195,7 @@
 
   </div>
 
-  <script src="src/quotes.js"></script>
+  <script src="dist/quotes.js"></script>
 </body>
 
 </html>
