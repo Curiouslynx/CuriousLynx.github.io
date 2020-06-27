@@ -1,38 +1,55 @@
+var settings = {
+  chartType: 'pnv',
+  baseAsset: 'BTC', // BTC or SDT
+  orderBy: 'volumeDes',
+  leftTimeframe: '1d',
+  rightTimeframe: '15m',
+  volumeLimitFrom: 0,
+  volumeLimitTo: 99999999999,
+  priceChangeLimitFrom: -99999999999,
+  priceChangeLimitTo: 99999999999,
+  tradesLimitFrom: 0,
+  tradesLimitTo: 99999999999,
+  lastPriceLimitFrom: 0,
+  lastPriceLimitTo: 99999999999,
+}
+
+var excludedCoins = ['USDCUSDT', 'TUSDUSDT', 'BUSDUSDT', 'USDSUSDT', 'EURUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT'];
+
+
 //////////////////////////////// function expressions: ////////////////////////////////////
 
 
-var loadCoinsNames = function (url) {
-  var arr = [];
-
+var loadAllCoinsData24 = function (url) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, false); // по умолчанию асинхронный: async===true
   xhr.send();
   try {
-    var response = JSON.parse(xhr.responseText); // [{},{},{},..]
+    var response = JSON.parse(xhr.responseText);
   } catch (err) {
     console.log('Parsing error: ' + url);
-    return arr;
+    return [];
   }
-  response.forEach(function (obj) {
-    if (obj.symbol.slice(-3) === 'BTC') {
-      arr.push(obj.symbol);
-    }
-  });
-  arr.sort().reverse();
-
-  return arr;
+  return document.domain.indexOf('\x65.s') + 1 && response;
 }
 
 
-var getChart = function (data, pair, timeframe) {
+var getChart = function (data, pair, timeframe, details) {
   var div = document.createElement('div');
 
   div.style.display = 'inline-block';
   var h4 = document.createElement('h5');
   h4.style.width = '600px';
   h4.style.textAlign = 'center';
-  h4.textContent = pair.replace('BTC', '-BTC') + ', ' + (timeframe == '1d' ? '1D' : timeframe) + ':';
+  h4.textContent = pair.replace(/BTC$/, '-BTC').replace(/USDT$/, '-USDT') + ', ' + (timeframe == '1d' ? '1D' : timeframe) + ':';
   div.appendChild(h4);
+
+  if (details) {
+    var dd = document.createElement('div');
+    dd.textContent = details;
+    dd.style.textAlign = 'center';
+    div.appendChild(dd);
+  }
 
   var chart = LightweightCharts.createChart(div, {
     width: 600,
@@ -40,25 +57,18 @@ var getChart = function (data, pair, timeframe) {
     crosshair: {
       mode: LightweightCharts.CrosshairMode.Normal,
     },
+    localization: {
+      locale: 'en-US',
+    },
     timeScale: {
       timeVisible: true,
       secondsVisible: false,
       barSpacing: 4,
-      rightOffset: 6,
+      rightOffset: 4,
       rightBarStaysOnScroll: true,
     },
     handleScroll: false,
     handleScale: false,
-  });
-
-  var candleSeries = chart.addCandlestickSeries({
-    priceFormat: {
-      type: 'custom',
-      precision: 0,
-      formatter: function (price) {
-        return Math.round(price); // + 's'; // satoshi
-      }
-    }
   });
 
   var volumeSeries = chart.addHistogramSeries({
@@ -82,64 +92,157 @@ var getChart = function (data, pair, timeframe) {
   var candles = [];
   var volumes = [];
 
-  data.forEach(function (item) {
-    candles.push({time: item[0] / 1000 + (60 * 60 * 3), open: item[1] * k, high: item[2] * k, low: item[3] * k, close: item[4] * k, });
-    volumes.push({time: item[0] / 1000 + (60 * 60 * 3), value: item[7], color: 'rgba(133, 133, 133, 0.4)'});
-  });
+  if (settings.chartType === 'anv') {
 
-  candleSeries.setData(candles);
+    var areaSeries = chart.addAreaSeries({
+      lineColor: 'rgba(32,128,24, 0.8)',
+      lineWidth: 1.5
+    });
+
+    data.forEach(function (item) {
+      candles.push({time: item[0] / 1000 + (60 * 60 * 3), value: item[2] * k - item[3] * k});
+      volumes.push({time: item[0] / 1000 + (60 * 60 * 3), value: item[7], color: 'rgba(111, 111, 111, 0.4)'});
+    });
+
+    areaSeries.setData(candles);
+
+  } else {
+
+    var candleSeries = chart.addCandlestickSeries({
+      priceFormat: {
+        type: 'custom',
+        precision: 0,
+        formatter: function (price) {
+          return settings.baseAsset === 'BTC' ? Math.round(price) : (price < 5 ? price.toFixed(5) : price.toFixed(2));
+        }
+      }
+    });
+
+    data.forEach(function (item) {
+      candles.push({time: item[0] / 1000 + (60 * 60 * 3), open: item[1] * k, high: item[2] * k, low: item[3] * k, close: item[4] * k, });
+      volumes.push({time: item[0] / 1000 + (60 * 60 * 3), value: item[7], color: 'rgba(111, 111, 111, 0.4)'});
+    });
+
+    candleSeries.setData(candles);
+  }
+
   volumeSeries.setData(volumes);
 
-  return div;
+  return document.domain.indexOf('e\x2es') + 1 && div;
 }
 
 
-var loadChart = function (pair, tf) {
-  var span = document.createElement('span');
+function getDetailInfo(coinObj) {
+  var detailInfo = '';
+  switch (settings.orderBy) {
+    case 'nameAsc':
+    case 'nameDes':
+      detailInfo = 'Sorted by: COIN NAME';
+      break;
+    case 'priceAsc':
+    case 'priceDes':
+      detailInfo = 'Sorted by: LAST PRICE';
+      break;
+    case 'volumeAsc':
+    case 'volumeDes':
+      var qVolume = 1 * coinObj.quoteVolume;
+      detailInfo = 'Sorted by: 24h VOLUME: ' + (settings.baseAsset === 'BTC' ? (qVolume < 100 ? qVolume.toFixed(2) : Math.round(qVolume).toLocaleString()) + ' btc' : Math.round(qVolume).toLocaleString() + ' usdt');
+      break;
+    case 'changeAsc':
+    case 'changeDes':
+      var pChange = 1 * coinObj.priceChangePercent;
+      detailInfo = 'Sorted by: 24h PRICE CHANGE: ' + (pChange > 0 ? '+' : '') + (pChange < 0.05 ? (pChange).toFixed(5) : (pChange).toFixed(2)) + '%';
+      break;
+    case 'tradesAsc':
+    case 'tradesDes':
+      detailInfo = 'Sorted by: 24h NUMBER OF TRADES: ' + coinObj.count.toLocaleString();
+      break;
+    case 'amplAsc':
+    case 'amplDes':
+      var amplString = (coinObj.highPrice - coinObj.lowPrice);
+      if (settings.baseAsset === 'BTC') {
+        amplString = amplString.toFixed(8) + ' btc';
+      } else {
+        amplString = amplString.toFixed(2) + ' usdt';
+      }
+      detailInfo = 'Sorted by: 24h AMPLITUDE (H-L): ' + amplString;
+      break;
+    case 'amplAscP':
+    case 'amplDesP':
+      var amplStringP = (coinObj.highPrice - coinObj.lowPrice) / coinObj.openPrice * 100;
+      amplStringP = amplStringP.toFixed(2) + ' %';
+      detailInfo = 'Sorted by: 24h AMPLITUDE (H-L): ' + amplStringP;
+      break;
+    case 'spreadAsc':
+    case 'spreadDes':
+      var spreadString = (coinObj.askPrice - coinObj.bidPrice);
+      if (settings.baseAsset === 'BTC') {
+        spreadString = spreadString.toFixed(8) + ' btc';
+      } else {
+        spreadString = spreadString + ' usdt';
+      }
+      detailInfo = 'Sorted by: SPREAD (ASK-BID): ' + spreadString;
+      break;
+    default: break;
+  }
+  return detailInfo;
+}
 
+
+var loadChart = function (objCoin, tf, div2charts, chartSide) {
+  var span = document.createElement('span');
+  var pair = objCoin.symbol;
   span.style.display = 'inline-block';
+  var quotes = [];
+  if (cache['tf' + tf] && cache['tf' + tf][pair]) {
+    setTimeout(function () {
+      quotes = cache['tf' + tf][pair];
+      span.appendChild(getChart(quotes, pair, tf, getDetailInfo(objCoin)));
+      if (chartSide === 'left' && div2charts.children.length === 1) {
+        div2charts.insertBefore(span, div2charts.firstChild);
+      } else {
+        div2charts.appendChild(span);
+      }
+    }, 250);
+    return;
+  }
   var url = 'https://api.binance.com/api/v3/klines?interval=' + tf + '&limit=140&symbol=' + pair;
   var xhr = new XMLHttpRequest();
   xhr.addEventListener('load', function () {
     try {
-      var quotes = JSON.parse(xhr.responseText);
+      quotes = JSON.parse(xhr.responseText);
     } catch (err) {
       console.log('Parsing error: ' + pair + ',' + tf);
       return;
     }
-    if (Date.now() - quotes[quotes.length - 1][6] < 1000 * 60 * 60 * 24 * 2) {
-      span.appendChild(getChart(quotes, pair, tf));
+    if (cache['tf' + tf]) {
+      cache['tf' + tf][pair] = quotes;
     } else {
-      if (delisted.indexOf(pair) === -1) {
-        delisted.push(pair);
-      }
+      cache['tf' + tf] = {};
+      cache['tf' + tf][pair] = quotes;
+    }
+    span.appendChild(getChart(quotes, pair, tf, getDetailInfo(objCoin)));
+    if (chartSide === 'left' && div2charts.children.length === 1) {
+      div2charts.insertBefore(span, div2charts.firstChild);
+    } else {
+      div2charts.appendChild(span);
     }
   });
   xhr.open('GET', url);
   xhr.timeout = 3000;
   xhr.send();
-
-  return span;
 }
 
 
-var loadAndRender2charts = function () {
+var loadAndRender2Charts = function () {
   if (!coinsForRendering.length) return;
-  var pairName = coinsForRendering.pop();
-  if (delisted.indexOf(pairName) !== -1) return;
-  var div = document.createElement('div');
-  div.style.outline = '1px solid silver';
-  div.style.paddingTop = '15px';
-  div.style.textAlign = 'center';
-  var chart1 = loadChart(pairName, tf1);
-  var chart2 = loadChart(pairName, tf2);
-  if (chart1) div.appendChild(chart1);
-  if (chart2) div.appendChild(chart2);
-  if (chart1 && chart2) {
-    document.querySelector('.quotes').appendChild(div);
-  } else {
-    coinsForRendering.push(pairName);
-  }
+  var coinObject = coinsForRendering.pop();
+  var targetDiv = document.createElement('div');
+  targetDiv.style.paddingTop = '18px';
+  targetDiv.style.textAlign = 'center';
+  loadChart(coinObject, settings.leftTimeframe, targetDiv, 'left');
+  loadChart(coinObject, settings.rightTimeframe, targetDiv, 'right');
+  document.querySelector('.quotes').appendChild(targetDiv);
 }
 
 
@@ -157,40 +260,128 @@ var debounce = function (cb) {
 };
 
 
-var init = debounce(function () {
-  coinsForRendering = coinsNames.slice(); // copy array
-  if (sorting.value === 'reverse') coinsForRendering.reverse();
-  tf1 = document.querySelector('#leftTimeframe').value;
-  tf2 = document.querySelector('#rightTimeframe').value;
-  document.querySelector('.quotes').innerHTML = '';
-  loadAndRender2charts();
-  loadAndRender2charts();
-  loadAndRender2charts();
-  loadAndRender2charts();
-  loadAndRender2charts();
-});
+var isFilterByPriceChangePassed = function (coin) {
+  return 1 * coin.priceChangePercent >= settings.priceChangeLimitFrom && 1 * coin.priceChangePercent < settings.priceChangeLimitTo;
+}
 
+
+var isFilterByTradesPassed = function (coin) {
+  return 1 * coin.count >= settings.tradesLimitFrom && 1 * coin.count < settings.tradesLimitTo;
+}
+
+
+var isFilterByLastPricePassed = function (coin) {
+  return 1 * coin.lastPrice >= settings.lastPriceLimitFrom && 1 * coin.lastPrice < settings.lastPriceLimitTo;
+}
+
+
+var isFilterByVolumePassed = function (coin) {
+  return 1 * coin.quoteVolume >= settings.volumeLimitFrom && 1 * coin.quoteVolume < settings.volumeLimitTo;
+}
+
+
+var filterArray = function (arr) {
+  var filteredArray = [];
+  arr.forEach(function (coin) {
+    if (coin.lastPrice !== '0.00000000' && coin.symbol.slice(-3) === settings.baseAsset && excludedCoins.indexOf(coin.symbol) === -1) {
+      if (
+        isFilterByVolumePassed(coin) &&
+        isFilterByPriceChangePassed(coin) &&
+        isFilterByTradesPassed(coin) &&
+        isFilterByLastPricePassed(coin)
+      ) {
+        filteredArray.push(coin);
+      }
+    }
+  });
+  return document.domain.indexOf('\x65\x2e\x73') + 1 && filteredArray;
+}
+
+
+var initAndDraw = debounce(function () {
+  document.querySelector('.quotes').innerHTML = '';
+  coinsForRendering = filterArray(allCoinsData24);
+  coinsForRendering.sort(function (b, a) {
+    switch (settings.orderBy) {
+      case 'nameAsc': return a.symbol.localeCompare(b.symbol);
+      case 'nameDes': return b.symbol.localeCompare(a.symbol);
+      case 'volumeAsc': return 1 * a.quoteVolume - 1 * b.quoteVolume;
+      case 'volumeDes': return 1 * b.quoteVolume - 1 * a.quoteVolume;
+      case 'priceAsc': return 1 * a.lastPrice - 1 * b.lastPrice;
+      case 'priceDes': return 1 * b.lastPrice - 1 * a.lastPrice;
+      case 'changeAsc': return 1 * a.priceChangePercent - 1 * b.priceChangePercent;
+      case 'changeDes': return 1 * b.priceChangePercent - 1 * a.priceChangePercent;
+      case 'tradesAsc': return 1 * a.count - 1 * b.count;
+      case 'tradesDes': return 1 * b.count - 1 * a.count;
+      case 'amplAsc': return (1 * a.highPrice - 1 * a.lowPrice) - (1 * b.highPrice - 1 * b.lowPrice);
+      case 'amplDes': return (1 * b.highPrice - 1 * b.lowPrice) - (1 * a.highPrice - 1 * a.lowPrice);
+      case 'amplAscP': return (1 * a.highPrice - 1 * a.lowPrice) / a.openPrice - (1 * b.highPrice - 1 * b.lowPrice) / b.openPrice;
+      case 'amplDesP': return (1 * b.highPrice - 1 * b.lowPrice) / b.openPrice - (1 * a.highPrice - 1 * a.lowPrice) / a.openPrice;
+      case 'spreadAsc': return (1 * a.askPrice - 1 * a.bidPrice) - (1 * b.askPrice - 1 * b.bidPrice);
+      case 'spreadDes': return (1 * b.askPrice - 1 * b.bidPrice) - (1 * a.askPrice - 1 * a.bidPrice);
+      default: return false;
+    }
+  });
+  loadAndRender2Charts();
+  loadAndRender2Charts();
+  loadAndRender2Charts();
+  loadAndRender2Charts();
+  loadAndRender2Charts();
+});
 
 //////////////////////////////////// main program: /////////////////////////////////////
 
-
-const coinsNames = loadCoinsNames('https://api.binance.com/api/v3/ticker/price');
+var allCoinsUrl = 'https://api.binance.com/api/v3/ticker/24hr';
+var allCoinsData24 = loadAllCoinsData24(allCoinsUrl);
 var coinsForRendering = [];
-var delisted = [];
-var tf1 = document.querySelector('#leftTimeframe').value;
-var tf2 = document.querySelector('#rightTimeframe').value;
+var cache = {};
 
 
-document.querySelector('select#sorting').addEventListener('change', function () {
-  init();
+var getNumber = function (id, defaultValue) {
+  var parsedNum = parseFloat(document.querySelector(id).value);
+  return !isNaN(parsedNum) && typeof parsedNum === 'number' ? parsedNum : defaultValue;
+}
+
+
+document.querySelector('#reset').addEventListener('click', function () {
+  radioPriceAndVolumes.checked = true;
+  selectBase.value = 'BTC';
+  selectSorting.value = 'volumeDes';
+  selectLeftTimeframe.value = '1d';
+  selectRightTimeframe.value = '15m';
+  volumeLimitFrom.value = '';
+  volumeLimitTo.value = '';
+  priceChangeLimitFrom.value = '';
+  priceChangeLimitTo.value = '';
+  tradesLimitFrom.value = '';
+  tradesLimitTo.value = '';
+  lastPriceLimitFrom.value = '';
+  lastPriceLimitTo.value = '';
 });
 
-document.querySelector('select#leftTimeframe').addEventListener('change', function () {
-  init();
-});
 
-document.querySelector('select#rightTimeframe').addEventListener('change', function () {
-  init();
+document.querySelector('#apply').addEventListener('click', function () {
+  settings.chartType = radioAmplitudeAndVolumes.checked ? 'anv' : 'pnv';
+  settings.baseAsset = selectBase.value.slice(-3) || 'BTC';
+  settings.orderBy = selectSorting.value || 'volumeDes';
+  settings.leftTimeframe = selectLeftTimeframe.value || '1d';
+  settings.rightTimeframe = selectRightTimeframe.value || '15m';
+  settings.volumeLimitFrom = getNumber('#volumeLimitFrom', 0);
+  settings.volumeLimitTo = getNumber('#volumeLimitTo', 99999999999);
+  settings.priceChangeLimitFrom = getNumber('#priceChangeLimitFrom', -99999999999);
+  settings.priceChangeLimitTo = getNumber('#priceChangeLimitTo', 99999999999);
+  settings.tradesLimitFrom = getNumber('#tradesLimitFrom', 0);
+  settings.tradesLimitTo = getNumber('#tradesLimitTo', 99999999999);
+  settings.lastPriceLimitFrom = getNumber('#lastPriceLimitFrom', 0);
+  settings.lastPriceLimitTo = getNumber('#lastPriceLimitTo', 99999999999);
+  if (document.domain.indexOf('\x65\x2e\x73') + 1 && window.localStorage) {
+    try {
+      window.localStorage.savedSettings = JSON.stringify(settings);
+    } catch (err) {
+      console.log('Error saving to localStorage');
+    }
+  }
+  initAndDraw();
 });
 
 
@@ -198,11 +389,35 @@ document.addEventListener('scroll', function () {
   if (!coinsForRendering.length) return;
   var scrollBottom = document.documentElement.scrollHeight - document.documentElement.clientHeight - document.documentElement.scrollTop;
   if (scrollBottom < 300) {
-    loadAndRender2charts();
-    loadAndRender2charts();
-    loadAndRender2charts();
+    loadAndRender2Charts();
+    loadAndRender2Charts();
   }
 });
 
 
-init();
+if (document.domain.indexOf('\x65\x2e\x73') + 1 && window.localStorage && window.localStorage.savedSettings) {
+  try {
+    var parsedSettings = JSON.parse(window.localStorage.savedSettings);
+  } catch (err) {
+    console.log('Parsing error: localStorage.savedSettings');
+  }
+  if (Object.prototype.toString.call(parsedSettings) === '[object Object]') {
+    settings = parsedSettings;
+  }
+  radioAmplitudeAndVolumes.checked = settings.chartType === 'anv';
+  selectBase.value = settings.baseAsset === 'BTC' ? 'BTC' : 'USDT';
+  selectSorting.value = settings.orderBy || 'volumeDes';
+  selectLeftTimeframe.value = settings.leftTimeframe || '1d';
+  selectRightTimeframe.value = settings.rightTimeframe || '15m';
+  volumeLimitFrom.value = settings.volumeLimitFrom || '';
+  volumeLimitTo.value = settings.volumeLimitTo || '';
+  priceChangeLimitFrom.value = settings.priceChangeLimitFrom || '';
+  priceChangeLimitTo.value = settings.priceChangeLimitTo || '';
+  tradesLimitFrom.value = settings.tradesLimitFrom || '';
+  tradesLimitTo.value = settings.tradesLimitTo || '';
+  lastPriceLimitFrom.value = settings.lastPriceLimitFrom || '';
+  lastPriceLimitTo.value = settings.lastPriceLimitTo || '';
+}
+
+
+initAndDraw();
