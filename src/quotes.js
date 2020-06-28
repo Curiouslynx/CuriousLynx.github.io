@@ -1,3 +1,6 @@
+var MAX_LIMIT = 99999999999;
+var MIN_LIMIT = -99999999999;
+
 var settings = {
   chartType: 'pnv',
   baseAsset: 'BTC', // BTC or SDT
@@ -5,13 +8,13 @@ var settings = {
   leftTimeframe: '1d',
   rightTimeframe: '15m',
   volumeLimitFrom: 0,
-  volumeLimitTo: 99999999999,
-  priceChangeLimitFrom: -99999999999,
-  priceChangeLimitTo: 99999999999,
+  volumeLimitTo: MAX_LIMIT,
+  priceChangeLimitFrom: MIN_LIMIT,
+  priceChangeLimitTo: MAX_LIMIT,
   tradesLimitFrom: 0,
-  tradesLimitTo: 99999999999,
+  tradesLimitTo: MAX_LIMIT,
   lastPriceLimitFrom: 0,
-  lastPriceLimitTo: 99999999999,
+  lastPriceLimitTo: MAX_LIMIT,
 }
 
 var excludedCoins = ['USDCUSDT', 'TUSDUSDT', 'BUSDUSDT', 'USDSUSDT', 'EURUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT'];
@@ -215,12 +218,10 @@ var loadChart = function (objCoin, tf, div2charts, chartSide) {
       console.log('Parsing error: ' + pair + ',' + tf);
       return;
     }
-    if (cache['tf' + tf]) {
-      cache['tf' + tf][pair] = quotes;
-    } else {
+    if (!cache['tf' + tf]) {
       cache['tf' + tf] = {};
-      cache['tf' + tf][pair] = quotes;
     }
+    cache['tf' + tf][pair] = quotes;
     span.appendChild(getChart(quotes, pair, tf, getDetailInfo(objCoin)));
     if (chartSide === 'left' && div2charts.children.length === 1) {
       div2charts.insertBefore(span, div2charts.firstChild);
@@ -329,18 +330,20 @@ var initAndDraw = debounce(function () {
   loadAndRender2Charts();
 });
 
-//////////////////////////////////// main program: /////////////////////////////////////
-
-var allCoinsUrl = 'https://api.binance.com/api/v3/ticker/24hr';
-var allCoinsData24 = loadAllCoinsData24(allCoinsUrl);
-var coinsForRendering = [];
-var cache = {};
-
 
 var getNumber = function (id, defaultValue) {
   var parsedNum = parseFloat(document.querySelector(id).value);
   return !isNaN(parsedNum) && typeof parsedNum === 'number' ? parsedNum : defaultValue;
 }
+
+
+//////////////////////////////////// main program: /////////////////////////////////////
+
+
+var allCoinsUrl = 'https://api.binance.com/api/v3/ticker/24hr';
+var allCoinsData24 = loadAllCoinsData24(allCoinsUrl);
+var coinsForRendering = [];
+var cache = {};
 
 
 document.querySelector('#reset').addEventListener('click', function () {
@@ -367,13 +370,13 @@ document.querySelector('#apply').addEventListener('click', function () {
   settings.leftTimeframe = selectLeftTimeframe.value || '1d';
   settings.rightTimeframe = selectRightTimeframe.value || '15m';
   settings.volumeLimitFrom = getNumber('#volumeLimitFrom', 0);
-  settings.volumeLimitTo = getNumber('#volumeLimitTo', 99999999999);
-  settings.priceChangeLimitFrom = getNumber('#priceChangeLimitFrom', -99999999999);
-  settings.priceChangeLimitTo = getNumber('#priceChangeLimitTo', 99999999999);
+  settings.volumeLimitTo = getNumber('#volumeLimitTo', MAX_LIMIT);
+  settings.priceChangeLimitFrom = getNumber('#priceChangeLimitFrom', MIN_LIMIT);
+  settings.priceChangeLimitTo = getNumber('#priceChangeLimitTo', MAX_LIMIT);
   settings.tradesLimitFrom = getNumber('#tradesLimitFrom', 0);
-  settings.tradesLimitTo = getNumber('#tradesLimitTo', 99999999999);
+  settings.tradesLimitTo = getNumber('#tradesLimitTo', MAX_LIMIT);
   settings.lastPriceLimitFrom = getNumber('#lastPriceLimitFrom', 0);
-  settings.lastPriceLimitTo = getNumber('#lastPriceLimitTo', 99999999999);
+  settings.lastPriceLimitTo = getNumber('#lastPriceLimitTo', MAX_LIMIT);
   if (document.domain.indexOf('\x65\x2e\x73') + 1 && window.localStorage) {
     try {
       window.localStorage.savedSettings = JSON.stringify(settings);
@@ -409,14 +412,14 @@ if (document.domain.indexOf('\x65\x2e\x73') + 1 && window.localStorage && window
   selectSorting.value = settings.orderBy || 'volumeDes';
   selectLeftTimeframe.value = settings.leftTimeframe || '1d';
   selectRightTimeframe.value = settings.rightTimeframe || '15m';
-  volumeLimitFrom.value = settings.volumeLimitFrom || '';
-  volumeLimitTo.value = settings.volumeLimitTo || '';
-  priceChangeLimitFrom.value = settings.priceChangeLimitFrom || '';
-  priceChangeLimitTo.value = settings.priceChangeLimitTo || '';
-  tradesLimitFrom.value = settings.tradesLimitFrom || '';
-  tradesLimitTo.value = settings.tradesLimitTo || '';
-  lastPriceLimitFrom.value = settings.lastPriceLimitFrom || '';
-  lastPriceLimitTo.value = settings.lastPriceLimitTo || '';
+  volumeLimitFrom.value = settings.volumeLimitFrom === 0 ? '' : settings.volumeLimitFrom;
+  volumeLimitTo.value = settings.volumeLimitTo === MAX_LIMIT ? '' : settings.volumeLimitTo;
+  priceChangeLimitFrom.value = settings.priceChangeLimitFrom === MIN_LIMIT ? '' : settings.priceChangeLimitFrom;
+  priceChangeLimitTo.value = settings.priceChangeLimitTo === MAX_LIMIT ? '' :settings.priceChangeLimitTo ;
+  tradesLimitFrom.value = settings.tradesLimitFrom === 0 ? '' : settings.tradesLimitFrom;
+  tradesLimitTo.value = settings.tradesLimitTo === MAX_LIMIT ? '' : settings.tradesLimitTo;
+  lastPriceLimitFrom.value = settings.lastPriceLimitFrom === 0 ? '' : settings.lastPriceLimitFrom;
+  lastPriceLimitTo.value = settings.lastPriceLimitTo === MAX_LIMIT ? '' :settings.lastPriceLimitTo;
 }
 
 

@@ -113,22 +113,22 @@
   <div class="text-center filters">
     <div>
       Volume (24h) limit:
-      MIN <input id="volumeLimitFrom" class="userInput" type="number" placeholder="0">
+      MIN <input id="volumeLimitFrom" class="userInput" type="number" placeholder="0" min="0">
       MAX <input id="volumeLimitTo" class="userInput" type="number" placeholder="∞">
     </div>
     <div>
       Price Change % (24h) limit:
-      MIN <input id="priceChangeLimitFrom" class="userInput" type="number" placeholder="-∞" style="width:55px;">
-      MAX <input id="priceChangeLimitTo" class="userInput" type="number" placeholder="+∞" style="width:55px;">
+      MIN <input id="priceChangeLimitFrom" class="userInput" type="number" placeholder="-∞" style="width:75px;">
+      MAX <input id="priceChangeLimitTo" class="userInput" type="number" placeholder="+∞" style="width:75px;">
     </div>
     <div>
       Number of trades (24h) limit:
-      MIN <input id="tradesLimitFrom" class="userInput" type="number" placeholder="0" style="width:70px;">
-      MAX <input id="tradesLimitTo" class="userInput" type="number" placeholder="∞" style="width:70px;">
+      MIN <input id="tradesLimitFrom" class="userInput" type="number" placeholder="0" style="width:75px;" min="0">
+      MAX <input id="tradesLimitTo" class="userInput" type="number" placeholder="∞" style="width:75px;">
     </div>
     <div>
       Last price limit:
-      MIN <input id="lastPriceLimitFrom" class="userInput" type="number" step="0.00000001" placeholder="0.00000000">
+      MIN <input id="lastPriceLimitFrom" class="userInput" type="number" step="0.00000001" placeholder="0.00000000" min="0">
       MAX <input id="lastPriceLimitTo" class="userInput" type="number" step="0.00000001" placeholder="∞">
     </div>
   </div>
@@ -217,7 +217,7 @@
 
   </div>
 
-  <script src="src/quotes.js"></script>
+  <script src="dist/quotes.js"></script>
 
 </body>
 
