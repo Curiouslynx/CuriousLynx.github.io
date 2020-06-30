@@ -390,7 +390,7 @@ document.querySelector('#apply').addEventListener('click', function () {
 
 document.addEventListener('scroll', function () {
   if (!coinsForRendering.length) return;
-  var scrollBottom = document.documentElement.scrollHeight - document.documentElement.clientHeight - document.documentElement.scrollTop;
+  var scrollBottom = document.documentElement.scrollHeight - document.documentElement.clientHeight - window.pageYOffset;
   if (scrollBottom < 300) {
     loadAndRender2Charts();
     loadAndRender2Charts();
