@@ -1,9 +1,33 @@
-module.exports = {
-  entry: './src/quotes.js',
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
-  output: {
-    filename: 'quotes.js'
+module.exports = {
+  mode: 'production',
+
+  entry: {
+    quotes: './src/quotes.js',
+    equity: './src/equity.js'
   },
 
-  mode: 'production'
+  output: {
+    path: __dirname + '/dist',
+    filename: '[name].js' // [шаблон] для нескольких файлов
+  },
+
+  // watch: true,
+  // watchOptions: {
+  //   aggregateTimeout: 300
+  // },
+
+  plugins: [
+    new CleanWebpackPlugin()
+  ],
+
+
+  // module: {
+  //   loaders: [{
+  //     loader: 'babel',
+  //     test: /\.js$/,
+  //   }]
+  // }
+
 }

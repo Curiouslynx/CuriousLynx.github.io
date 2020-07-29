@@ -230,7 +230,7 @@ var loadChart = function (objCoin, tf, div2charts, chartSide) {
     }
   });
   xhr.open('GET', url);
-  xhr.timeout = 3000;
+  xhr.timeout = 0;
   xhr.send();
 }
 
