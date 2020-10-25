@@ -1,5 +1,5 @@
 
-var makeGraph = function () {
+document.querySelector('#generate').addEventListener('click', function () {
   var g = new Dygraph(document.getElementById("g"), getData(),
     {
       showLabelsOnHighlight: parseInt(document.getElementById("lines").value) > 300 ? false : true,
@@ -8,6 +8,7 @@ var makeGraph = function () {
       highlightCircleSize: 0,
       strokeWidth: 1,
       strokeBorderWidth: document.getElementById("ch1").checked ? 1 : 0,
+      legend: document.getElementById("ch2").checked ? 'follow' : 'onmouseover',
       highlightSeriesOpts: {
         strokeWidth: 2,
         strokeBorderWidth: 1,
@@ -15,10 +16,12 @@ var makeGraph = function () {
       }
     }
   )
-};
+});
 
 
+document.querySelector('#generate').click();
 //function getData_test() {return "Date,Value\n" + "2008-05-07,75\n" + "2008-05-08,70\n" + "2008-05-09,80\n"}
+
 
 function getData() {
   var data = [];
@@ -48,6 +51,3 @@ function getData() {
 
   return data;
 };
-
-
-makeGraph();

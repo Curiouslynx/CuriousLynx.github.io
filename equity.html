@@ -83,10 +83,10 @@
       Average profit: <input type="text" id="avgWin" value="200" title="Средняя прибыльная сделка">
       Average loss: <input type="text" id="avgLoss" value="100" title="Средняя убыточная сделка">
       <BR>
-      Lines: <input type="text" id="lines" value="55" title="Количество кривых эквити">
-      Line highlighting:<input type="checkbox" id="ch1" checked>
+      Lines: <input type="text" id="lines" value="30" title="Количество кривых эквити">
+      Line highlighting:<input type="checkbox" id="ch1">
       Show legend:<input type="checkbox" id="ch2">
-      <input type="button" class="btn btn-outline-primary" value="Generate" onclick="makeGraph();" title="Generate">
+      <input id="generate" type="button" class="btn btn-outline-primary" value="Generate" title="Generate">
 
     </div>
 
@@ -121,6 +121,7 @@
     </footer>
 
   </div>
+
 
   <script src="dist/equity.js"></script>
 
