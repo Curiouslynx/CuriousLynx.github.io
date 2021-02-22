@@ -17,8 +17,8 @@ var settings = {
   lastPriceLimitTo: MAX_LIMIT,
 }
 
-var excludedCoins = ['USDCUSDT', 'TUSDUSDT', 'BUSDUSDT', 'USDSUSDT', 'EURUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT'];
-
+var excludedCoins = []; //['USDCUSDT', 'TUSDUSDT', 'BUSDUSDT', 'USDSUSDT', 'EURUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT'];
+var goal = 0;
 
 //////////////////////////////// function expressions: ////////////////////////////////////
 
@@ -300,6 +300,7 @@ var filterArray = function (arr) {
 
 
 var initAndDraw = debounce(function () {
+  goal = 0;
   document.querySelector('.quotes').innerHTML = '';
   coinsForRendering = filterArray(allCoinsData24);
   coinsForRendering.sort(function (b, a) {
@@ -389,7 +390,13 @@ document.querySelector('#apply').addEventListener('click', function () {
 
 
 document.addEventListener('scroll', function () {
-  if (!coinsForRendering.length) return;
+  if (!coinsForRendering.length) {
+    if(!goal) {
+      goal++;
+      ym(64976653,'reachGoal','id641029');
+    }
+    return;
+  }
   var scrollBottom = document.documentElement.scrollHeight - document.documentElement.clientHeight - window.pageYOffset;
   if (scrollBottom < 300) {
     loadAndRender2Charts();
