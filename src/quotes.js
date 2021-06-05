@@ -17,7 +17,7 @@ var settings = {
   lastPriceLimitTo: MAX_LIMIT,
 }
 
-var excludedCoins = []; //['USDCUSDT', 'TUSDUSDT', 'BUSDUSDT', 'USDSUSDT', 'EURUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT'];
+var excludedCoins = ['USDCUSDT', 'TUSDUSDT', 'BUSDUSDT', 'USDSUSDT', 'EURUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT', 'ADAUP-USDT', 'DOTUP-USDT', 'SXPDOWN-USDT', 'BNBDOWN-USDT', 'SUSHIUP-USDT', 'XRPDOWN-USDT', 'AAVEUP-USDT', 'XTZDOWN-USDT', 'FILUP-USDT', 'EOSDOWN-USDT', 'TRXDOWN-USDT', 'XLMDOWN-USDT', 'BCHDOWN-USDT', 'BCHUP-USDT', 'BNBBEAR-USDT', 'BNBBULL-USDT', 'XRPBEAR-USDT', 'EOSBEAR-USDT', 'EOSBULL-USDT', 'ETHBEAR-USDT', 'ETHBULL-USDT', 'BEAR-USDT', 'BULL-USDT', 'XLMUP-USDT'];
 var goal = 0;
 
 //////////////////////////////// function expressions: ////////////////////////////////////
@@ -394,6 +394,8 @@ document.addEventListener('scroll', function () {
     if(!goal) {
       goal++;
       ym(64976653,'reachGoal','id641029');
+      var loader = document.querySelector('#loader');
+      loader.parentNode.removeChild(loader);
     }
     return;
   }
