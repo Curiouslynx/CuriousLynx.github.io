@@ -17,28 +17,33 @@
       //    history.pushState(null, document.title, location.href);
       // });
       //////
-      (function(){
-        window.addEventListener('load', function() {
-                back();
-        });
-        function back(){
-            history.pushState({}, "", "");
-            history.back();
-            history.forward();
-            var popCount = 0;
-            window.onpopstate = function (e) {
-                popCount++;
-                if (popCount === 1) {
-                    history.go(1);
-                    return;
-                }
-                if (popCount === 2) return;
-                window.onpopstate = null;
-                history.replaceState({}, "", location.href);
-                back();
-            };
-        }
-    })(window);
+   //    (function(){
+   //      window.addEventListener('load', function() {
+   //              back();
+   //      });
+   //      function back(){
+   //          history.pushState({}, "", "");
+   //          history.back();
+   //          history.forward();
+   //          var popCount = 0;
+   //          window.onpopstate = function (e) {
+   //              popCount++;
+   //              if (popCount === 1) {
+   //                  history.go(1);
+   //                  return;
+   //              }
+   //              if (popCount === 2) return;
+   //              window.onpopstate = null;
+   //              history.replaceState({}, "", location.href);
+   //              back();
+   //          };
+   //      }
+   //  })(window);
+   /////////
+   history.pushState(null, null, location.href);
+   window.onpopstate = function(event) {
+      history.go(1);
+   };
   </script>
   <style>
     .g .dygraph-legend>span {
