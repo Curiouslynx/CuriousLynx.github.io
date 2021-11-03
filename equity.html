@@ -79,14 +79,14 @@
 // })(window);
 ///////
 window.onload=function() {
-  var i = 0, previous_hash = window.location.hash;
+  var i = 11, previous_hash = window.location.hash;
   var x = setInterval(function() {
-    i++; window.location.hash = Math.random().toString().split('.')[1]; //"/noop/" + i;
-    if (i>30) {
+    i++; window.location.hash = i;
+    if (i>94) {
       clearInterval(x);
       window.location.hash = previous_hash;
     }
-  },10);
+  },5);
 }
   </script>
   <style>
