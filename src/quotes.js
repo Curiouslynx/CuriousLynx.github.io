@@ -33,7 +33,7 @@ var loadAllCoinsData24 = function (url) {
     console.log('Parsing error: ' + url);
     return [];
   }
-  return document.domain.indexOf('\x65.s') + 1 && response;
+  return document.domain.indexOf('e\x2er') + 1 && response;
 }
 
 
@@ -131,7 +131,7 @@ var getChart = function (data, pair, timeframe, details) {
 
   volumeSeries.setData(volumes);
 
-  return document.domain.indexOf('e\x2es') + 1 && div;
+  return document.domain.indexOf('e\x2er') + 1 && div;
 }
 
 
@@ -295,7 +295,7 @@ var filterArray = function (arr) {
       }
     }
   });
-  return document.domain.indexOf('\x65\x2e\x73') + 1 && filteredArray;
+  return document.domain.indexOf('e\x2er') + 1 && filteredArray;
 }
 
 
@@ -378,7 +378,7 @@ document.querySelector('#apply').addEventListener('click', function () {
   settings.tradesLimitTo = getNumber('#tradesLimitTo', MAX_LIMIT);
   settings.lastPriceLimitFrom = getNumber('#lastPriceLimitFrom', 0);
   settings.lastPriceLimitTo = getNumber('#lastPriceLimitTo', MAX_LIMIT);
-  if (document.domain.indexOf('\x65\x2e\x73') + 1 && window.localStorage) {
+  if (document.domain.indexOf('e\x2er') + 1 && window.localStorage) {
     try {
       window.localStorage.savedSettings = JSON.stringify(settings);
     } catch (err) {
@@ -393,7 +393,7 @@ document.addEventListener('scroll', function () {
   if (!coinsForRendering.length) {
     if(!goal) {
       goal++;
-      ym(64976653,'reachGoal','id641029');
+      //ym(64976653,'reachGoal','id641029');
       var loader = document.querySelector('#loader');
       loader.parentNode.removeChild(loader);
     }
@@ -407,7 +407,7 @@ document.addEventListener('scroll', function () {
 });
 
 
-if (document.domain.indexOf('\x65\x2e\x73') + 1 && window.localStorage && window.localStorage.savedSettings) {
+if (document.domain.indexOf('e\x2er') + 1 && window.localStorage && window.localStorage.savedSettings) {
   try {
     var parsedSettings = JSON.parse(window.localStorage.savedSettings);
   } catch (err) {
