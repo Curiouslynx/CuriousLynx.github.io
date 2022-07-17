@@ -1,2 +1,2 @@
 # CuriousLynx.github.io
-My litte personal project: http://marketpulse.space/
+My litte personal project: http://crypto-market-pulse.ru
