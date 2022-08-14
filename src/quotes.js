@@ -58,7 +58,18 @@ var getChart = function (data, pair, timeframe, details) {
     width: 600,
     height: 340,
     crosshair: {
-      mode: LightweightCharts.CrosshairMode.Normal,
+      //mode: LightweightCharts.CrosshairMode.Normal,
+      vertLine: {
+        visible: false,
+        labelVisible: false,
+        //width: 5,
+        //color: 'rgba(224, 227, 235, 0.1)',
+        //style: 0,
+      },
+      horzLine: {
+        visible: false,
+        labelVisible: false,
+      },
     },
     localization: {
       locale: 'en-US',
