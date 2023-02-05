@@ -178,6 +178,7 @@
         function loadChartData(tf) { // 1d   1h  1w ...
             myChart.showLoading();
             $.get('https://crypto-market-pulse.ru/kwork-chart/json/gazp/' + tf + '.json', function (rawData) {
+                myChart.hideLoading();
                 var data = splitData(rawData);
                 myChart.setOption(
                     (option = {
