@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test1</title>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.js"></script>
+    <style>
+        body {
+            margin-left: 100px;
+            font-family: Tahoma;
+        }
+
+        .chart-header {
+            font-size: 20px;
+        }
+
+        .chart-descr {
+            font-size: 16px;
+            margin-bottom: 14px;
+            font-family: Tahoma;
+        }
+
+        #candlestick-chart {
+            width: 760px;
+            height: 760px;
+        }
+
+        .toolbox-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            max-width: 760px;
+        }
+
+        .timeframes,
+        .charttypes-wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            background-color: #f4f5f8;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            border-radius: 4px;
+        }
+
+        .timeframes .btn,
+        .charttypes-wrapper .btn {
+            border-radius: 4px;
+            border: none;
+            padding: 4px 10px;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 22px;
+            color: #8c8d8f;
+            background-color: #f4f5f8;
+        }
+
+        .timeframes .btn.selected {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .charttypes-wrapper .btn {
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 38% auto;
+            width: 54px;
+            opacity: 0.4;
+        }
+
+        .charttypes-wrapper .btn.selected {
+            opacity: 1;
+            background-color: white;
+        }
+
+        .charttypes-wrapper .type-lines {
+            background-image: url('images/chart-graph-icon.png');
+        }
+
+        .charttypes-wrapper .type-bars {
+            background-image: url('images/chart-bars-icon.png');
+        }
+
+        .charttypes-wrapper .type-candles {
+            background-image: url('images/chart-candles-icon.png');
+        }
+
+        .candlestick-infobar {
+            font: bold 10pt Tahoma;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <h1 class="chart-header">ГАЗПРОМ ао GAZP</h1>
+    <div class="chart-descr">Акция обыкновенная</div>
+
+    <div class="candlestick-wrapper">
+
+        <div class="toolbox-wrapper">
+
+            <div class="timeframes">
+                <input type="button" class="btn btn-1h selected" value="Час" onclick="loadChartData('1h')">
+                <input type="button" class="btn btn-1d" value="День" onclick="loadChartData('1d')">
+                <input type="button" class="btn btn-1w" value="Неделя" onclick="loadChartData('1w')">
+                <input type="button" class="btn btn-1mon" value="Месяц" onclick="loadChartData('1m')">
+                <input type="button" class="btn btn-1q" value="Квартал" onclick="loadChartData('quarter')">
+            </div>
+
+            <div class="charttypes-wrapper">
+                <button type="button" class="btn type-lines"></button>
+                <button type="button" class="btn type-candles selected"></button>
+                <button type="button" class="btn type-bars"></button>
+
+            </div>
+
+        </div>
+
+        <div class="candlestick-infobar" id="infobar">#infobar</div>
+
+        <div id="candlestick-chart"></div>
+
+    </div>
+
+
+    <script>
+        var chartDom = document.getElementById('candlestick-chart');
+        var myChart = echarts.init(chartDom);
+        var option;
+        const upColor = '#ffffff';
+        const downColor = '#0093c6';
+
+
+        function splitData(rawData) {
+            let categoryData = [];
+            let values = [];
+            let volumes = [];
+            for (let i = 0; i < rawData.length; i++) {
+                categoryData.push(rawData[i].splice(0, 1)[0]);
+                values.push(rawData[i]);
+                volumes.push([i, rawData[i][4], rawData[i][0] > rawData[i][1] ? 1 : -1]);
+            }
+            return {
+                categoryData: categoryData,
+                values: values,
+                volumes: volumes
+            };
+        }
+
+
+        function calculateMA(dayCount, data) {
+            var result = [];
+            for (var i = 0, len = data.values.length; i < len; i++) {
+                if (i < dayCount) {
+                    result.push('-');
+                    continue;
+                }
+                var sum = 0;
+                for (var j = 0; j < dayCount; j++) {
+                    sum += data.values[i - j][1];
+                }
+                result.push(+(sum / dayCount).toFixed(3));
+            }
+            return result;
+        }
+
+
+        function loadChartData(tf) { // 1d   1h  1w ...
+            myChart.showLoading();
+            $.get('https://crypto-market-pulse.ru/kwork-chart/json/gazp/' + tf + '.json', function (rawData) {
+                var data = splitData(rawData);
+                myChart.setOption(
+                    (option = {
+                        animation: false,
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross'
+                            },
+                            borderWidth: 1,
+                            borderColor: '#ccc',
+                            padding: 10,
+                            textStyle: {
+                                color: '#000'
+                            },
+                            position: function (pos, params, el, elRect, size) {
+                                const obj = {
+                                    top: 10
+                                };
+                                obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+                                return obj;
+                            }
+                        },
+                        axisPointer: {
+                            link: [
+                                {xAxisIndex: 'all'}
+                            ],
+                            label: {backgroundColor: '#777'}
+                        },
+                        grid: [
+                            {
+                                height: '60%',  //////////////////// ВЫСОТА ГРАФИКА ////////////////////
+                                //width: '760px',
+                                //remove space around the chart:
+                                top: '0%',
+                                left: '0%',
+                                bottom: '0%',
+                                right: '0%',
+                            },
+                            {
+                                height: '8%',
+                                //borderColor: "black",
+                                top: '63%', ////////////////// BarChart Top Coordinate /////////////////
+                                left: '0%',
+                                bottom: '0%',
+                                right: '0%',
+                            }
+                        ],
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: data.categoryData,
+                                boundaryGap: false,
+                                axisLine: {onZero: false},
+                                splitLine: {show: false},
+                                min: 'dataMin',
+                                max: 'dataMax',
+                                axisPointer: {
+                                    z: 100
+                                }
+                            }, {
+                                type: 'category',
+                                gridIndex: 1,
+                                data: data.categoryData,
+                                boundaryGap: false,
+                                axisLine: {onZero: false},
+                                axisTick: {show: false},
+                                splitLine: {show: false},
+                                axisLabel: {show: false},
+                                min: 'dataMin',
+                                max: 'dataMax'
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                position: 'right',
+                                scale: true,
+                                splitArea: {
+                                    show: false
+                                },
+                                splitLine: {
+                                    show: true
+                                },
+                            }, {
+                                scale: true,
+                                gridIndex: 1,
+                                splitNumber: 2,
+                                axisLabel: {show: false},
+                                axisLine: {show: false},
+                                axisTick: {show: false},
+                                splitLine: {show: false}
+                            }
+                        ],
+                        dataZoom: [
+                            {
+                                type: 'inside',
+                                xAxisIndex: [0, 1],
+                                start: 75,
+                                end: 100
+                            }, {
+                                top: '73%', /////////////////// DataZoom Top Coordinate ////////////////
+                                height: 50,
+                                type: 'slider',
+                                fillerColor: "rgba(102, 133, 194, 0.3)",
+                                dataBackground: {
+                                    lineStyle: {
+                                        color: "#00a8ac", //"rgba(7, 88, 177, 1)",
+                                        width: 1
+                                    }
+                                },
+                                show: true,
+                                xAxisIndex: [0, 1],
+                            }
+                        ],
+                        series: [
+                            {
+                                name: 'Dow-Jones index',
+                                type: 'candlestick',
+                                data: data.values,
+                                itemStyle: {
+                                    color: upColor,
+                                    color0: downColor,
+                                    borderColor: '#000000',
+                                    borderColor0: '#000000',
+                                },
+                                tooltip: {
+                                    formatter: function (param) {
+                                        param = param[0];
+                                        return [
+                                            'Date: ' + param.name + '<hr size=1 style="margin: 3px 0">',
+                                            'Open: ' + param.data[0] + '<br/>',
+                                            'Close: ' + param.data[1] + '<br/>',
+                                            'Lowest: ' + param.data[2] + '<br/>',
+                                            'Highest: ' + param.data[3] + '<br/>'
+                                        ].join('');
+                                    }
+                                }
+                            }, {
+                                name: 'MA30',
+                                type: 'line',
+                                data: [], // calculateMA(30, data),
+                                smooth: true,
+                                lineStyle: {
+                                    opacity: 0.5
+                                }
+                            }, {
+                                name: 'Volume',
+                                type: 'bar',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: data.volumes,
+                                itemStyle: {
+                                    color: function (param) {
+                                        return param.value[2] === -1 ? '#9cecb4' : '#ffacc8'
+                                    }
+                                },
+                                yAxis: {
+                                    splitLine: {
+                                        show: true
+                                    },
+                                },
+                            }
+                        ]
+                    }),
+                    true
+                );
+            });
+
+            option && myChart.setOption(option);
+
+        }
+
+
+        loadChartData('1h');
+
+
+    </script>
+
+</body>
+
+</html>
