@@ -110,11 +110,11 @@
         <div class="toolbox-wrapper">
 
             <div class="timeframes">
-                <input type="button" class="btn btn-1h selected" value="Час" onclick="loadChartData('1h')">
-                <input type="button" class="btn btn-1d" value="День" onclick="loadChartData('1d')">
-                <input type="button" class="btn btn-1w" value="Неделя" onclick="loadChartData('1w')">
-                <input type="button" class="btn btn-1mon" value="Месяц" onclick="loadChartData('1m')">
-                <input type="button" class="btn btn-1q" value="Квартал" onclick="loadChartData('quarter')">
+                <input type="button" class="btn btn-1h selected" value="Час" onclick="tfClickHandler('1h')">
+                <input type="button" class="btn btn-1d" value="День" onclick="tfClickHandler('1d')">
+                <input type="button" class="btn btn-1w" value="Неделя" onclick="tfClickHandler('1w')">
+                <input type="button" class="btn btn-1mon" value="Месяц" onclick="tfClickHandler('1m')">
+                <input type="button" class="btn btn-1q" value="Квартал" onclick="tfClickHandler('quarter')">
             </div>
 
             <div class="charttypes-wrapper">
@@ -176,7 +176,17 @@
 
 
         function loadChartData(tf) { // 1d   1h  1w ...
-            myChart.showLoading();
+            myChart.showLoading({
+                text: 'Загрузка ...',
+                fontSize: 16,
+                fontWeight: 'bold',
+                textColor: '#cccccc',
+                maskColor: 'rgba(255, 255, 255, 0.8)',
+                showSpinner: true,
+                spinnerRadius: 10,
+                lineWidth: 5,
+            });
+
             $.get('https://crypto-market-pulse.ru/kwork-chart/json/gazp/' + tf + '.json', function (rawData) {
                 myChart.hideLoading();
                 var data = splitData(rawData);
@@ -215,16 +225,16 @@
                                 //remove space around the chart:
                                 top: '0%',
                                 left: '0%',
+                                right: '8%',
                                 bottom: '0%',
-                                right: '0%',
                             },
                             {
                                 height: '8%',
                                 //borderColor: "black",
                                 top: '63%', ////////////////// BarChart Top Coordinate /////////////////
                                 left: '0%',
-                                bottom: '0%',
                                 right: '0%',
+                                bottom: '0%',
                             }
                         ],
                         xAxis: [
@@ -354,6 +364,15 @@
 
         loadChartData('1h');
 
+
+        function tfClickHandler(tf) {
+            var buttons = document.querySelectorAll('.timeframes > .btn');
+            for (var button of buttons) {
+                button.classList.remove("selected");
+            }
+            event.target.classList.add('selected');
+            loadChartData(tf);
+        }
 
     </script>
 
