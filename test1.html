@@ -91,7 +91,7 @@
             background-image: url('images/chart-candles-icon.png');
         }
 
-        .candlestick-infobar {
+        .echarts-tooltip {
             font: bold 10pt Tahoma;
             margin-top: 10px;
             margin-bottom: 20px;
@@ -103,7 +103,7 @@
 
 
     <h1 class="chart-header">ГАЗПРОМ ао GAZP</h1>
-    <div class="chart-descr">Акция обыкновенная</div>
+    <div class="chart-descr">Акция обыкновенная..</div>
 
     <div class="candlestick-wrapper">
 
@@ -126,7 +126,7 @@
 
         </div>
 
-        <div class="candlestick-infobar" id="infobar">#infobar</div>
+        <div class="echarts-tooltip" id="infobar">#infobar</div>
 
         <div id="candlestick-chart"></div>
 
@@ -136,6 +136,12 @@
     <script>
         var chartDom = document.getElementById('candlestick-chart');
         var myChart = echarts.init(chartDom);
+        myChart.on('click', function (params) {
+            infobar.textContent = params.data;
+        });
+        myChart.on('mousemove', function (params) {
+            infobar.textContent = params.data;
+        });
         var option;
         const upColor = '#ffffff';
         const downColor = '#0093c6';
@@ -195,22 +201,6 @@
                         animation: false,
                         tooltip: {
                             trigger: 'axis',
-                            axisPointer: {
-                                type: 'cross'
-                            },
-                            borderWidth: 1,
-                            borderColor: '#ccc',
-                            padding: 10,
-                            textStyle: {
-                                color: '#000'
-                            },
-                            position: function (pos, params, el, elRect, size) {
-                                const obj = {
-                                    top: 10
-                                };
-                                obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
-                                return obj;
-                            }
                         },
                         axisPointer: {
                             link: [
@@ -233,7 +223,7 @@
                                 //borderColor: "black",
                                 top: '63%', ////////////////// BarChart Top Coordinate /////////////////
                                 left: '0%',
-                                right: '0%',
+                                right: '8%',
                                 bottom: '0%',
                             }
                         ],
@@ -286,7 +276,7 @@
                             {
                                 type: 'inside',
                                 xAxisIndex: [0, 1],
-                                start: 75,
+                                start: 0,
                                 end: 100
                             }, {
                                 top: '73%', /////////////////// DataZoom Top Coordinate ////////////////
@@ -305,7 +295,7 @@
                         ],
                         series: [
                             {
-                                name: 'Dow-Jones index',
+                                name: 'STOCKS',
                                 type: 'candlestick',
                                 data: data.values,
                                 itemStyle: {
@@ -315,16 +305,7 @@
                                     borderColor0: '#000000',
                                 },
                                 tooltip: {
-                                    formatter: function (param) {
-                                        param = param[0];
-                                        return [
-                                            'Date: ' + param.name + '<hr size=1 style="margin: 3px 0">',
-                                            'Open: ' + param.data[0] + '<br/>',
-                                            'Close: ' + param.data[1] + '<br/>',
-                                            'Lowest: ' + param.data[2] + '<br/>',
-                                            'Highest: ' + param.data[3] + '<br/>'
-                                        ].join('');
-                                    }
+                                    show: false,
                                 }
                             }, {
                                 name: 'MA30',
@@ -337,6 +318,9 @@
                             }, {
                                 name: 'Volume',
                                 type: 'bar',
+                                tooltip: {
+                                    show: false
+                                },
                                 xAxisIndex: 1,
                                 yAxisIndex: 1,
                                 data: data.volumes,
@@ -363,6 +347,17 @@
 
 
         loadChartData('1h');
+
+
+        setTimeout(() => {
+            myChart.dispatchAction({
+                type: 'dataZoom',
+                start: 75,
+                end: 100
+            });
+        }, 1111);
+
+
 
 
         function tfClickHandler(tf) {
