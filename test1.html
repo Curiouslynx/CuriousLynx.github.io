@@ -7,11 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>test1</title>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
     <style>
         body {
-            margin-left: 100px;
+            margin: 0;
             font-family: Tahoma;
         }
 
@@ -26,8 +25,8 @@
         }
 
         #candlestick-chart {
-            width: 760px;
-            height: 760px;
+            width: 100%;
+            height: 560px;
         }
 
         .toolbox-wrapper {
@@ -91,7 +90,7 @@
             background-image: url('images/chart-candles-icon.png');
         }
 
-        .echarts-tooltip {
+        #infobar {
             font: bold 10pt Tahoma;
             margin-top: 10px;
             margin-bottom: 20px;
@@ -103,12 +102,11 @@
 
 
     <h1 class="chart-header">ГАЗПРОМ ао GAZP</h1>
-    <div class="chart-descr">Акция обыкновенная..</div>
+    <div class="chart-descr">Акция обыкновенная</div>
 
     <div class="candlestick-wrapper">
 
         <div class="toolbox-wrapper">
-
             <div class="timeframes">
                 <input type="button" class="btn btn-1h selected" value="Час" onclick="tfClickHandler('1h')">
                 <input type="button" class="btn btn-1d" value="День" onclick="tfClickHandler('1d')">
@@ -116,33 +114,32 @@
                 <input type="button" class="btn btn-1mon" value="Месяц" onclick="tfClickHandler('1m')">
                 <input type="button" class="btn btn-1q" value="Квартал" onclick="tfClickHandler('quarter')">
             </div>
-
             <div class="charttypes-wrapper">
-                <button type="button" class="btn type-lines"></button>
-                <button type="button" class="btn type-candles selected"></button>
-                <button type="button" class="btn type-bars"></button>
-
+                <button type="button" class="btn type-lines" onclick="typeClickHandler('line')"></button>
+                <button type="button" class="btn type-candles selected" onclick="typeClickHandler('candlestick')"></button>
+                <button type="button" class="btn type-bars" onclick="typeClickHandler('line end step')"></button>
             </div>
-
         </div>
 
-        <div class="echarts-tooltip" id="infobar">#infobar</div>
+        <div id="infobar">&nbsp;</div>
 
         <div id="candlestick-chart"></div>
 
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
     </div>
 
 
     <script>
+
         var chartDom = document.getElementById('candlestick-chart');
         var myChart = echarts.init(chartDom);
-        myChart.on('click', function (params) {
-            infobar.textContent = params.data;
-        });
-        myChart.on('mousemove', function (params) {
-            infobar.textContent = params.data;
+        window.addEventListener('resize', function () {
+            myChart.resize();
         });
         var option;
+        var data;
+        var imoexdata;
         const upColor = '#ffffff';
         const downColor = '#0093c6';
 
@@ -195,12 +192,39 @@
 
             $.get('https://crypto-market-pulse.ru/kwork-chart/json/gazp/' + tf + '.json', function (rawData) {
                 myChart.hideLoading();
-                var data = splitData(rawData);
+                data = splitData(rawData);
                 myChart.setOption(
                     (option = {
                         animation: false,
                         tooltip: {
                             trigger: 'axis',
+                            axisPointer: {
+                                type: 'line',
+                            },
+                            extraCssText: 'box-shadow:none;font:bold 12px Tahoma;display:flex;flex-wrap:wrap;',
+                            borderWidth: 0,
+                            borderRadius: 0,
+                            borderColor: '#ffffff',
+                            padding: 0,
+                            textStyle: {
+                                color: '#000'
+                            },
+                            position: function (pos, params, el, elRect, size) {
+                                return {
+                                    top: '-32px',
+                                    left: 0
+                                }
+                            },
+                            formatter: function (params) {
+                                var param = params[0];
+                                return param.name +
+                                    '&nbsp;<span style="color:#0093c6;">' + param.seriesName + '&nbsp;:&nbsp;</span> ' +
+                                    '<span>&nbsp;Открытие:' + param.data[1] +
+                                    ',<span>&nbsp;Макс.:' + param.data[4] +
+                                    ',&nbsp;</span> <span>Мин.:' + param.data[3] +
+                                    ',&nbsp;</span> <span>Закрытие:' + param.data[2] +
+                                    ',&nbsp;</span> <span>Объём:' + param.data[5]
+                            },
                         },
                         axisPointer: {
                             link: [
@@ -215,7 +239,7 @@
                                 //remove space around the chart:
                                 top: '0%',
                                 left: '0%',
-                                right: '8%',
+                                right: '18%',
                                 bottom: '0%',
                             },
                             {
@@ -223,7 +247,7 @@
                                 //borderColor: "black",
                                 top: '63%', ////////////////// BarChart Top Coordinate /////////////////
                                 left: '0%',
-                                right: '8%',
+                                right: '18%',
                                 bottom: '0%',
                             }
                         ],
@@ -276,7 +300,7 @@
                             {
                                 type: 'inside',
                                 xAxisIndex: [0, 1],
-                                start: 0,
+                                start: 85,
                                 end: 100
                             }, {
                                 top: '73%', /////////////////// DataZoom Top Coordinate ////////////////
@@ -295,7 +319,7 @@
                         ],
                         series: [
                             {
-                                name: 'STOCKS',
+                                name: 'GAZP',
                                 type: 'candlestick',
                                 data: data.values,
                                 itemStyle: {
@@ -305,21 +329,21 @@
                                     borderColor0: '#000000',
                                 },
                                 tooltip: {
-                                    show: false,
+                                    show: true,
                                 }
                             }, {
-                                name: 'MA30',
+                                name: 'IMOEX',
                                 type: 'line',
-                                data: [], // calculateMA(30, data),
+                                data: calculateMA(30, data),
                                 smooth: true,
                                 lineStyle: {
-                                    opacity: 0.5
+                                    opacity: 0.5,
                                 }
                             }, {
                                 name: 'Volume',
                                 type: 'bar',
                                 tooltip: {
-                                    show: false
+                                    show: true
                                 },
                                 xAxisIndex: 1,
                                 yAxisIndex: 1,
@@ -339,9 +363,31 @@
                     }),
                     true
                 );
+                //
             });
 
             option && myChart.setOption(option);
+
+
+            // setTimeout(function () { //load IMOEX data:
+            //     $.get('http://crypto-market-pulse.ru/kwork-chart/json/imoex/' + tf + '.json', function (rawData) {
+            //         imoexdata = splitData(rawData);
+            //         myChart.setOption({
+            //             series: [
+            //                 {
+            //                     name: 'IMOEX',
+            //                     data: calculateMA(1, imoexdata),
+            //                     position: 'left',
+            //                 }
+            //             ]
+            //         });
+            //         //option.series[1].data = calculateMA(1, data);
+            //         // option.series[0].type = chartType;
+            //         // option.series[0].step = step;
+            //         // option.series[0].data = calculateMA(1, data);
+            //         // myChart.setOption(option);
+            //     });
+            // }, 100);
 
         }
 
@@ -349,13 +395,13 @@
         loadChartData('1h');
 
 
-        setTimeout(() => {
-            myChart.dispatchAction({
-                type: 'dataZoom',
-                start: 75,
-                end: 100
-            });
-        }, 1111);
+        // setTimeout(() => {
+        //     myChart.dispatchAction({
+        //         type: 'dataZoom',
+        //         start: 75,
+        //         end: 100
+        //     });
+        // }, 1111);
 
 
 
@@ -368,6 +414,37 @@
             event.target.classList.add('selected');
             loadChartData(tf);
         }
+
+
+
+        function typeClickHandler(chartType) {
+            var buttons = document.querySelectorAll('.charttypes-wrapper > .btn');
+            for (var button of buttons) {
+                button.classList.remove("selected");
+            }
+            event.target.classList.add('selected');
+
+            var step = '';
+            if (chartType.indexOf(' ') != -1) {
+                var props = chartType.split(' ');
+                step = props[1];
+                chartType = props[0];
+            }
+            // myChart.setOption({
+            //     series: [
+            //         {
+            //             name: 'GAZP',
+            //             type: chartType,
+            //             step: step
+            //         }
+            //     ]
+            // });
+            option.series[0].type = chartType;
+            option.series[0].step = step;
+            option.series[0].data = calculateMA(1, data);
+            myChart.setOption(option);
+        }
+
 
     </script>
 
