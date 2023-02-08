@@ -83,7 +83,7 @@
             background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFrSURBVHgB7drRbcIwGEXhq07QERihI6QbMAIjsAHeoN2go3SEdoOMQDdobcFPkYJCHMeJic8n3TeQ4MiKIogEAAAAAAAAAACWd/Br/Y5+n347YZBnvy+/3xvbC7364oUdz6/BDffi2bb2hifBhHjhOvciRBt68mwb4SI2nhMuiJeAeAlWEa/x+zjvTfNdmFcR76DuB22V/xZitfGu7/JzRVx9vJwRq4mXI2J18aaMWG28KSJWHy8lIvE0PiLxND5idfHCl210ipMascp49tN4iJISsep4ZmxE4l2JjdiIeB0xEWPmVKCp45mpIzoVKFc8M1VEpwLljmdSIzoVaK54ZmxEpwLNHc/ERnQq0FLxzNCITgVaOp65F9GpQKXEMyFiK+Il2fi96/9v0UYFKjXeQyBeAuIlIF6CjYiXZCviRYt9Rvrb79XvR+gIp6rvLp+TN8BexEu20+lx/3AaW/FoKwAAAAAAAAAABfgDBJIMxM+Xgu0AAAAASUVORK5CYII=");
         }
 
-        .charttypes-wrapper .type-line-end {
+        .charttypes-wrapper .type-bar {
             background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAF4SURBVHgB7dqBTcMwEIXhB2IANqjZoCOUCRATMAJsAhsAG7BB2QCYoOkEwATFVohkIShNLrFj6/+kU6tGSpPXuL3akQAAAAAAAAAAAABM60h1OPW1+n6cwoevV1+NKnTl693XLkHda7oPKYul0gQX11oVCSezy1CL7gCOVTanPM67J6UHmEujSmyUfvhu4gPgCuwntDOX8QsnqtuT2pMew9bX3Yj7m4X/hvBCE2MIGxGgEQEaEaARARoRoBEBGv3WSIf5rmtN+0c9NKNvvh5UGad0k5PdBKVF9ka67wFNUTcaLnuA8XfgSnnm1y5UsDhApzycChYH+Cz0FgfYiBB7+9kHhsnCR+Fgfy2sO7VLhmOsgYZ93O7Z3vg60zDhV9jt2R62bVU4px5rDD3Nqo3BAARoRIBGBGhEgEYEaESARnO4M8Gp7dmKxBVoRIBGBGiUIsCcdzN9qhJrpV9reVFFVkof4FKVcUpzJYb3qC48AAAAAAAAAPl9AX+7P0eUErH1AAAAAElFTkSuQmCC");
         }
 
@@ -118,7 +118,7 @@
             <div class="charttypes-wrapper">
                 <button type="button" class="btn type-line" onclick="typeClickHandler('line')"></button>
                 <button type="button" class="btn type-candlestick selected" onclick="typeClickHandler('candlestick')"></button>
-                <button type="button" class="btn type-line-end" onclick="typeClickHandler('line-end')"></button>
+                <button type="button" class="btn type-bar" onclick="typeClickHandler('bar')"></button>
             </div>
         </div>
 
@@ -140,7 +140,6 @@
         });
         var option;
         var data;
-        var data_line = [];
         var data2 = [];
         var imoexdata;
         var selectedChartType = 'candlestick';
@@ -294,7 +293,6 @@
                                     position: 'right',
                                     scale: 1,
                                     splitLine: {show: 1},
-
                                     axisLabel: {show: 1},
                                     splitArea: {show: 0},
                                 },
@@ -335,6 +333,7 @@
                                 top: '77%',
                                 height: 50,
                                 type: 'slider',
+                                moveHandleSize: 12,
                                 fillerColor: "rgba(102, 133, 194, 0.3)",
                                 dataBackground: {
                                     lineStyle: {
@@ -348,20 +347,37 @@
                         ],
 
                         series: [
+                            // {
+                            //     name: 'GAZP',
+                            //     data: data.values,
+                            //     type: 'candlestick',
+                            //     itemStyle: {
+                            //         color: upColor,
+                            //         color0: downColor,
+                            //         borderColor: '#000000',
+                            //         borderColor0: '#000000',
+                            //     },
+                            //     tooltip: {
+                            //         show: true,
+                            //     }
+                            // },
                             {
                                 name: 'GAZP',
                                 data: data.values,
-                                type: 'candlestick',
-                                itemStyle: {
-                                    color: upColor,
-                                    color0: downColor,
-                                    borderColor: '#000000',
-                                    borderColor0: '#000000',
+                                type: 'custom',
+                                renderItem: renderItem,
+                                dimensions: ['-', 'open', 'close', 'lowest', 'highest'],
+                                encode: {
+                                    x: 0,
+                                    x: 0,
+                                    y: [1, 2, 3, 4],
+                                    tooltip: [1, 2, 3, 4]
                                 },
                                 tooltip: {
                                     show: true,
                                 }
                             },
+
                             {
                                 name: 'IMOEX',
                                 data: data2,
@@ -447,15 +463,8 @@
             for (var button of buttons) button.classList.remove("selected");
             var selectedBtn = document.querySelector('.charttypes-wrapper > .type-' + chartType);
             selectedBtn.classList.add('selected');
-            var step = '';
-            if (chartType.indexOf('-') != -1) {
-                var props = chartType.split('-');
-                chartType = props[0];
-                step = props[1];
-            }
             if (chartType === 'candlestick') {
                 option.series[0] = {
-                    name: 'GAZP',
                     data: data.values,
                     type: 'candlestick',
                     //yAxisIndex: 0,
@@ -469,30 +478,106 @@
                         show: true,
                     }
                 }
-            } else {
-                data_line = splitDataLine(data, step);
+            } else if (chartType === 'line') {
                 option.series[0] = {
-                    name: 'GAZP',
-                    data: data_line,
+                    data: splitDataLine(data),
                     type: 'line',
-                    step: step,
                     showSymbol: false,
                     lineStyle: {
                         opacity: 1,
                     }
                 };
+            } else if (chartType === 'bar') {
+                option.series[0] = {
+                    name: 'GAZP',
+                    data: data.values,
+                    type: 'custom',
+                    renderItem: renderItem,
+                    dimensions: ['-', 'open', 'close', 'lowest', 'highest'],
+                    encode: {
+                        x: 0,
+                        y: [1, 2, 3, 4],
+                        tooltip: [1, 2, 3, 4]
+                    },
+                }
             }
+
             myChart.setOption(option);
         }
 
 
 
-        function splitDataLine(data, step) {
+        function splitDataLine(data) {
             var result = [];
             for (var i = 0, len = data.values.length; i < len; i++) {
                 result.push(data.values[i][1]);
             }
             return result;
+        }
+
+        counter = 0;
+
+        function renderItem(params, api) {
+            var xValue = api.value(0);
+            var openPoint = api.coord([xValue, api.value(1)]);
+            var closePoint = api.coord([xValue, api.value(2)]);
+            var lowPoint = api.coord([xValue, api.value(3)]);
+            var highPoint = api.coord([xValue, api.value(4)]);
+
+            //////// DEBUG://///////////////////////////////////////////////////
+            if (counter++ === 0) {
+                console.log(params);
+                console.log(api);
+                console.log('xValue = ' + xValue);
+                console.log('open: ' + openPoint);
+                console.log('close: ' + closePoint);
+                console.log('low: ' + lowPoint);
+                console.log('high: ' + highPoint);
+            }
+            // '<span>&nbsp;Открытие:' + data.values[i][0] + ',&nbsp;</span> ' +
+            // '<span>&nbsp;Макс.:' + data.values[i][3] + ',&nbsp;</span> ' +
+            // '<span>&nbsp;Мин.:' + data.values[i][2] + ',&nbsp;</span> ' +
+            // '<span>&nbsp;Закрытие:' + data.values[i][1] + ',&nbsp;</span> ' +
+            // '<span>&nbsp;Объём:' + data.values[i][4] + '&nbsp;</span> '
+            var halfWidth = api.size([1, 0])[0] * 0.35;
+            var style = api.style({
+                stroke: api.visual('color')
+            });
+            return {
+                type: 'group',
+                children: [
+                    {
+                        type: 'line',
+                        shape: {
+                            x1: lowPoint[0],
+                            y1: lowPoint[1],
+                            x2: highPoint[0],
+                            y2: highPoint[1]
+                        },
+                        style: style
+                    },
+                    {
+                        type: 'line',
+                        shape: {
+                            x1: openPoint[0],
+                            y1: openPoint[1],
+                            x2: openPoint[0] - halfWidth,
+                            y2: openPoint[1]
+                        },
+                        style: style
+                    },
+                    {
+                        type: 'line',
+                        shape: {
+                            x1: closePoint[0],
+                            y1: closePoint[1],
+                            x2: closePoint[0] + halfWidth,
+                            y2: closePoint[1]
+                        },
+                        style: style
+                    }
+                ]
+            };
         }
 
     </script>
