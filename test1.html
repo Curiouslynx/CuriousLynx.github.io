@@ -118,7 +118,7 @@
             <div class="charttypes-wrapper">
                 <button type="button" class="btn type-line" onclick="typeClickHandler('line')"></button>
                 <button type="button" class="btn type-candlestick selected" onclick="typeClickHandler('candlestick')"></button>
-                <button type="button" class="btn type-line-end" onclick="typeClickHandler('line-end')"></button>
+                <!-- <button type="button" class="btn type-line-end" onclick="typeClickHandler('line-end')"></button> -->
             </div>
         </div>
 
@@ -230,14 +230,14 @@
                             {
                                 height: '60%',
                                 top: '1%',
-                                left: '6%',
+                                left: '60px',
                                 right: '18%',
                                 bottom: '0%',
                             },
                             {
                                 height: '10%',
                                 top: '64%',
-                                left: '6%',
+                                left: '60px',
                                 right: '18%',
                                 bottom: '0%',
                             }
@@ -283,7 +283,7 @@
                                     boundaryGap: true,
                                     axisTick: {show: true},
                                     splitLine: {show: false},
-                                    axisLabel: {show: 0},
+                                    axisLabel: {show: 1},
                                     min: 'dataMin',
                                     max: 'dataMax'
                                 }
