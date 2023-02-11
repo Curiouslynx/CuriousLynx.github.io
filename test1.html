@@ -143,6 +143,7 @@
         var data_line = [];
         var data2 = [];
         var imoexdata;
+        var currentTimeframe = '1h';
         var selectedChartType = 'candlestick';
         const upColor = '#ffffff';
         const downColor = '#0093c6';
@@ -185,7 +186,24 @@
                         legend: {
                             left: 'center',
                             bottom: 20,
-                            data: ['GAZP', 'IMOEX']
+                            //data: ['GAZP', 'IMOEX']
+                            data: [{
+                                name: 'GAZP',
+                                //icon: 'rect',
+                                textStyle: {
+                                    color: '#0089bb',
+                                    borderWidth: 0
+                                },
+                                itemStyle: {
+                                    color: '#0089bb'
+                                },
+                            }, {
+                                name: 'IMOEX',
+                                //icon: 'circle',
+                                textStyle: {
+                                    color: 'red'
+                                },
+                            }]
                         },
                         tooltip: {
                             trigger: 'axis',
@@ -209,13 +227,15 @@
                             formatter: function (params) {
                                 var param = params[0];
                                 var i = param.dataIndex;
+                                var nf = new Intl.NumberFormat("Ru");
+                                var f = function (n) {return nf.format(n).split(' ').join('&nbsp;');}
                                 return param.name +
                                     '&nbsp;<span style="color:#0093c6;">&nbsp;' + param.seriesName + '&nbsp;:&nbsp;</span> ' +
-                                    '<span>&nbsp;Открытие:' + data.values[i][0] + ',&nbsp;</span> ' +
-                                    '<span>&nbsp;Макс.:' + data.values[i][3] + ',&nbsp;</span> ' +
-                                    '<span>&nbsp;Мин.:' + data.values[i][2] + ',&nbsp;</span> ' +
-                                    '<span>&nbsp;Закрытие:' + data.values[i][1] + ',&nbsp;</span> ' +
-                                    '<span>&nbsp;Объём:' + data.values[i][4] + '&nbsp;</span> '
+                                    '<span>&nbsp;Открытие:' + f(data.values[i][0]) + ',&nbsp;</span> ' +
+                                    '<span>&nbsp;Макс.:' + f(data.values[i][3]) + ',&nbsp;</span> ' +
+                                    '<span>&nbsp;Мин.:' + f(data.values[i][2]) + ',&nbsp;</span> ' +
+                                    '<span>&nbsp;Закрытие:' + f(data.values[i][1]) + ',&nbsp;</span> ' +
+                                    '<span>&nbsp;Объём:' + f(data.values[i][4]) + '&nbsp;</span> '
                             },
                         },
 
@@ -230,14 +250,14 @@
                             {
                                 height: '60%',
                                 top: '1%',
-                                left: '60px',
+                                left: '80px',
                                 right: '18%',
                                 bottom: '0%',
                             },
                             {
                                 height: '10%',
                                 top: '64%',
-                                left: '60px',
+                                left: '80px',
                                 right: '18%',
                                 bottom: '0%',
                             }
@@ -294,20 +314,31 @@
                                     position: 'right',
                                     scale: 1,
                                     splitLine: {show: 1},
-
-                                    axisLabel: {show: 1},
                                     splitArea: {show: 0},
+                                    axisLabel: {
+                                        show: 1,
+                                        formatter: function (value, index) {
+                                            var nf = new Intl.NumberFormat("Ru");
+                                            var f = function (n) {return nf.format(n).split(' ').join('&nbsp;');}
+                                            return f(value) + ' руб.';
+                                        },
+                                    },
                                 },
                                 {
                                     position: 'left',
                                     scale: 1,
                                     splitLine: {show: 1},
-                                    axisLabel: {show: 1},
                                     splitArea: {show: 0},
                                     alignTicks: true,
+                                    axisLabel: {
+                                        show: 1,
+                                        formatter: function (value, index) {
+                                            var nf = new Intl.NumberFormat("Ru");
+                                            var f = function (n) {return nf.format(n).split(' ').join('&nbsp;');}
+                                            return f(value) + ' руб.';
+                                        },
+                                    },
                                 },
-
-
                                 {
                                     gridIndex: 1,
                                     position: 'right',
@@ -315,7 +346,9 @@
                                     axisLabel: {show: true},
                                     axisLabel: {
                                         formatter: function (value, index) {
-                                            return value / 1000000 + 'M';
+                                            if (value == 0) return 0;
+                                            if (value > 900000000) return value / 1000000000 + ' млрд';
+                                            return value / 1000000 + ' млн.';
                                         },
                                     },
                                     splitNumber: 2,
@@ -414,6 +447,15 @@
                         for (let i = 0; i < rawData.length; i++) data2.push(rawData[i][4]);
                         option.series[1].data = data2;
                         myChart.setOption(option);
+                        if (currentTimeframe === 'quarter') {
+                            setTimeout(function () {
+                                myChart.dispatchAction({
+                                    type: 'dataZoom',
+                                    start: 0,
+                                    end: 100
+                                });
+                            }, 50);
+                        }
                     });
                 }, 100);
 
@@ -427,6 +469,7 @@
 
 
         function tfClickHandler(tf) {
+            currentTimeframe = tf;
             var buttons = document.querySelectorAll('.timeframes > .btn');
             for (var button of buttons) button.classList.remove("selected");
             event.target.classList.add('selected');
