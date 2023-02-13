@@ -103,7 +103,9 @@
 
 
     <h1 class="chart-header">ГАЗПРОМ ао GAZP</h1>
-    <div class="chart-descr">Акция обыкновенная.</div>
+    <div class="chart-descr">Акция обыкновенная.
+        <input id="imoexSwitcher" type="checkbox" onclick="toggleIMOEX()"><label for="imoexSwitcher"> Сравнить с IMOEX</label>
+    </div>
 
     <div class="candlestick-wrapper">
 
@@ -147,6 +149,32 @@
         var selectedChartType = 'candlestick';
         const upColor = '#ffffff';
         const downColor = '#0093c6';
+
+
+        function toggleIMOEX() {
+            if (imoexSwitcher.checked) {
+                myChart.dispatchAction({
+                    type: 'legendSelect',
+                    name: 'IMOEX'
+                });
+            } else {
+                myChart.dispatchAction({
+                    type: 'legendUnSelect',
+                    name: 'IMOEX'
+                });
+            }
+        }
+
+
+        myChart.on('legendselectchanged', function (params) {
+            if (params.name === 'IMOEX') {
+                if (params.selected[params.name]) {
+                    imoexSwitcher.checked = true;
+                } else {
+                    imoexSwitcher.checked = false;
+                }
+            }
+        });
 
 
         function splitData(rawData) {
@@ -203,7 +231,8 @@
                                 textStyle: {
                                     color: 'red'
                                 },
-                            }]
+                            }],
+                            selected:{'GAZP':true, 'IMOEX':false},
                         },
                         tooltip: {
                             trigger: 'axis',
