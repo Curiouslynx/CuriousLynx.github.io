@@ -157,11 +157,13 @@
                     type: 'legendSelect',
                     name: 'IMOEX'
                 });
+                window.localStorage.isShowMOEX = 'SHOW';
             } else {
                 myChart.dispatchAction({
                     type: 'legendUnSelect',
                     name: 'IMOEX'
                 });
+                window.localStorage.isShowMOEX = '';
             }
         }
 
@@ -170,8 +172,10 @@
             if (params.name === 'IMOEX') {
                 if (params.selected[params.name]) {
                     imoexSwitcher.checked = true;
+                    window.localStorage.isShowMOEX = 'SHOW';
                 } else {
                     imoexSwitcher.checked = false;
+                    window.localStorage.isShowMOEX = '';
                 }
             }
         });
@@ -232,7 +236,7 @@
                                     color: 'red'
                                 },
                             }],
-                            selected:{'GAZP':true, 'IMOEX':false},
+                            selected:{'GAZP':true, 'IMOEX':window.localStorage.isShowMOEX},
                         },
                         tooltip: {
                             trigger: 'axis',
