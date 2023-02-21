@@ -141,7 +141,7 @@
             myChart.resize();
         });
         var option;
-        var data;
+        var data = [];
         var data_line = [];
         var data2 = [];
         var imoexdata;
@@ -241,7 +241,7 @@
                         tooltip: {
                             trigger: 'axis',
                             axisPointer: {
-                                type: 'line',
+                                type: 'cross',
                             },
                             extraCssText: 'box-shadow:none;font:bold 12px Tahoma;display:flex;flex-wrap:wrap;',
                             borderWidth: 0,
@@ -356,6 +356,15 @@
                                             return f(value) + ' руб.';
                                         },
                                     },
+                                    axisPointer: {
+                                        label: {
+                                            formatter: function (params) {
+                                                var nf = new Intl.NumberFormat("Ru");
+                                                var f = function (n) {return nf.format(n).split(' ').join('&nbsp;');}
+                                                return f(Math.round(params.value)) + ' руб.'
+                                            }
+                                        }
+                                    }
                                 },
                                 {
                                     position: 'left',
@@ -371,13 +380,22 @@
                                             return f(value) + ' руб.';
                                         },
                                     },
+                                    axisPointer: {
+                                        label: {
+                                            formatter: function (params) {
+                                                var nf = new Intl.NumberFormat("Ru");
+                                                var f = function (n) {return nf.format(n).split(' ').join('&nbsp;');}
+                                                return f(Math.round(params.value)) + ' руб.'
+                                            }
+                                        }
+                                    }
                                 },
                                 {
                                     gridIndex: 1,
                                     position: 'right',
                                     scale: 1,
-                                    axisLabel: {show: true},
                                     axisLabel: {
+                                        show: true,
                                         formatter: function (value, index) {
                                             if (value == 0) return 0;
                                             if (value > 900000000) return value / 1000000000 + ' млрд';
@@ -544,7 +562,10 @@
                     tooltip: {
                         show: true,
                     }
-                }
+                };
+                option.legend = {
+                    selected:{'GAZP':true, 'IMOEX':window.localStorage.isShowMOEX},
+                };
             } else {
                 data_line = splitDataLine(data, step);
                 option.series[0] = {
@@ -556,6 +577,9 @@
                     lineStyle: {
                         opacity: 1,
                     }
+                };
+                option.legend = {
+                    selected:{'GAZP':true, 'IMOEX':window.localStorage.isShowMOEX},
                 };
             }
             myChart.setOption(option);
