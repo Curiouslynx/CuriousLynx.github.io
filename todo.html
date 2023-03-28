@@ -10,17 +10,33 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <script type="text/javascript" >(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");ym(88927473,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});</script>
   <noscript><div><img src="https://mc.yandex.ru/watch/88927473" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-  <!-- <script>"serviceWorker" in navigator && navigator.serviceWorker.register("/sw.js")</script> -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js').then(function (registration) {  // Registration was successful
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function (err) {  // registration failed :(
-          console.log('ServiceWorker registration failed: ', err);
-        });
-      });
-    }
+    "serviceWorker" in navigator && navigator.serviceWorker.register("/sw.js");
+    // if ('serviceWorker' in navigator) {
+    //   window.addEventListener('load', function () {
+    //     navigator.serviceWorker.register('/sw.js').then(function (registration) {  // Registration was successful
+    //       console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    //     }, function (err) {  // registration failed :(
+    //       console.log('ServiceWorker registration failed: ', err);
+    //     });
+    //   });
+    // }
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        //e.preventDefault();  // Prevent the mini-infobar from appearing on mobile
+        deferredPrompt = e;  //Stash the event so it can be triggered later.
+    });
+    let ibtn = document.getElementById('installApp');
+    ibtn.addEventListener('click', async () => {
+        if (deferredPrompt !== null) {
+            deferredPrompt.prompt();
+            const {outcome} = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                deferredPrompt = null;
+                ibtn.style.display = 'none';
+            }
+        }
+    });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
   <style>
@@ -122,6 +138,8 @@
 </head>
 
 <body>
+
+  <button type="button" id="installApp" style="position:absolute;top:0;right:0;margin:10px;border-radius:50%;width:44px;height:44px;border:1px solid red;">App</button>
 
   <ul id="todo">
     <tree-item class="item" :parentItem="treeData" :deepIndex="0" :item="treeData" @make-folder="makeFolder" @add-item="addItem" @delete-item="deleteItem"></tree-item>
