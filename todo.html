@@ -21,22 +21,6 @@
     //     });
     //   });
     // }
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        //e.preventDefault();  // Prevent the mini-infobar from appearing on mobile
-        deferredPrompt = e;  //Stash the event so it can be triggered later.
-    });
-    let ibtn = document.getElementById('installApp');
-    ibtn.addEventListener('click', async () => {
-        if (deferredPrompt !== null) {
-            deferredPrompt.prompt();
-            const {outcome} = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                deferredPrompt = null;
-                ibtn.style.display = 'none';
-            }
-        }
-    });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
   <style>
@@ -147,6 +131,22 @@
 
 
   <script>
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        //e.preventDefault();  // Prevent the mini-infobar from appearing on mobile
+        deferredPrompt = e;  //Stash the event so it can be triggered later.
+    });
+    let ibtn = document.getElementById('installApp');
+    ibtn.addEventListener('click', async () => {
+        if (deferredPrompt !== null) {
+            deferredPrompt.prompt();
+            const {outcome} = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                deferredPrompt = null;
+                ibtn.style.display = 'none';
+            }
+        }
+    });
 
     var saved = {
       "name": "ToDo List",
