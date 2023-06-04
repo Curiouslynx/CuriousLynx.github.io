@@ -22,6 +22,19 @@ var goal = 0;
 
 //////////////////////////////// function expressions: ////////////////////////////////////
 
+if (!String.prototype.endsWith) {
+    Object.defineProperty(String.prototype, 'endsWith', {
+      value: function(searchString, position) {
+        var subjectString = this.toString();
+        if (position === undefined || position > subjectString.length) {
+          position = subjectString.length;
+        }
+        position -= searchString.length;
+        var lastIndex = subjectString.indexOf(searchString, position);
+        return lastIndex !== -1 && lastIndex === position;
+      }
+    });
+}
 
 var loadAllCoinsData24 = function (url) {
   var xhr = new XMLHttpRequest();
@@ -295,7 +308,7 @@ var isFilterByVolumePassed = function (coin) {
 var filterArray = function (arr) {
   var filteredArray = [];
   arr.forEach(function (coin) {
-    if (coin.lastPrice !== '0.00000000' && coin.symbol.slice(-3) === settings.baseAsset && coin.symbol.indexOf('DOWN-') === -1 && coin.symbol.indexOf('UP-') === -1 && coin.symbol.indexOf('BULL-') === -1 && coin.symbol.indexOf('BEAR-') === -1) {
+    if (coin.lastPrice !== '0.00000000' && coin.symbol.slice(-3) === settings.baseAsset && !coin.symbol.endsWith('DOWNUSDT') && !coin.symbol.endsWith('UPUSDT') && !coin.symbol.endsWith('BULLUSDT') && !coin.symbol.endsWith('BULLBUSD') && !coin.symbol.endsWith('BEARUSDT') && !coin.symbol.endsWith('BEARBUSD') && !coin.symbol.endsWith('USDS') && !coin.symbol.endsWith('USDC')) {
       if (
         isFilterByVolumePassed(coin) &&
         isFilterByPriceChangePassed(coin) &&
