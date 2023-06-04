@@ -17,7 +17,7 @@ var settings = {
   lastPriceLimitTo: MAX_LIMIT,
 }
 
-var excludedCoins = ['ADADOWN-USDT','BNBDOWN-USDT','DOTDOWN-USDT','ETHDOWN-USDT','LINKDOWN-USDT','TRXDOWN-USDT','XRPDOWN-USDT','ADAUP-USDT','BNBUP-USDT','DOTUP-USDT','ETHUP-USDT','LINKUP-USDT','TRXUP-USDT','XRPUP-USDT','USDCUSDT', 'TUSDUSDT', 'BUSDUSDT', 'USDSUSDT', 'EURUSDT', 'BTCUPUSDT', 'BTCDOWNUSDT', 'ADAUP-USDT', 'DOTUP-USDT', 'SXPDOWN-USDT', 'BNBDOWN-USDT', 'SUSHIUP-USDT', 'XRPDOWN-USDT', 'AAVEUP-USDT', 'XTZDOWN-USDT', 'FILUP-USDT', 'EOSDOWN-USDT', 'TRXDOWN-USDT', 'XLMDOWN-USDT', 'BCHDOWN-USDT', 'BCHUP-USDT', 'BNBBEAR-USDT', 'BNBBULL-USDT', 'XRPBEAR-USDT', 'EOSBEAR-USDT', 'EOSBULL-USDT', 'ETHBEAR-USDT', 'ETHBULL-USDT', 'BEAR-USDT', 'BULL-USDT', 'XLMUP-USDT'];
+
 var goal = 0;
 
 //////////////////////////////// function expressions: ////////////////////////////////////
@@ -33,7 +33,7 @@ var loadAllCoinsData24 = function (url) {
     console.log('Parsing error: ' + url);
     return [];
   }
-  return document.domain.indexOf('e\x2er') + 1 && response;
+  return document.domain.indexOf('x\x2eg') + 1 && response;
 }
 
 
@@ -142,7 +142,7 @@ var getChart = function (data, pair, timeframe, details) {
 
   volumeSeries.setData(volumes);
 
-  return document.domain.indexOf('e\x2er') + 1 && div;
+  return document.domain.indexOf('x\x2eg') + 1 && div;
 }
 
 
@@ -295,7 +295,7 @@ var isFilterByVolumePassed = function (coin) {
 var filterArray = function (arr) {
   var filteredArray = [];
   arr.forEach(function (coin) {
-    if (coin.lastPrice !== '0.00000000' && coin.symbol.slice(-3) === settings.baseAsset && excludedCoins.indexOf(coin.symbol) === -1) {
+    if (coin.lastPrice !== '0.00000000' && coin.symbol.slice(-3) === settings.baseAsset && coin.symbol.indexOf('DOWN-') === -1 && coin.symbol.indexOf('UP-') === -1 && coin.symbol.indexOf('BULL-') === -1 && coin.symbol.indexOf('BEAR-') === -1) {
       if (
         isFilterByVolumePassed(coin) &&
         isFilterByPriceChangePassed(coin) &&
@@ -306,7 +306,7 @@ var filterArray = function (arr) {
       }
     }
   });
-  return document.domain.indexOf('e\x2er') + 1 && filteredArray;
+  return document.domain.indexOf('x\x2eg') + 1 && filteredArray;
 }
 
 
@@ -389,7 +389,7 @@ document.querySelector('#apply').addEventListener('click', function () {
   settings.tradesLimitTo = getNumber('#tradesLimitTo', MAX_LIMIT);
   settings.lastPriceLimitFrom = getNumber('#lastPriceLimitFrom', 0);
   settings.lastPriceLimitTo = getNumber('#lastPriceLimitTo', MAX_LIMIT);
-  if (document.domain.indexOf('e\x2er') + 1 && window.localStorage) {
+  if (document.domain.indexOf('x\x2eg') + 1 && window.localStorage) {
     try {
       window.localStorage.savedSettings = JSON.stringify(settings);
     } catch (err) {
@@ -418,7 +418,7 @@ document.addEventListener('scroll', function () {
 });
 
 
-if (document.domain.indexOf('e\x2er') + 1 && window.localStorage && window.localStorage.savedSettings) {
+if (document.domain.indexOf('x\x2eg') + 1 && window.localStorage && window.localStorage.savedSettings) {
   try {
     var parsedSettings = JSON.parse(window.localStorage.savedSettings);
   } catch (err) {
