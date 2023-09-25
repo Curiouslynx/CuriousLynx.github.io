@@ -493,7 +493,7 @@
                 }
 
                 setTimeout(function () {
-                    $.get('https://curiouslynx.github.io/json/imoex/' + tf + '.json', function (rawData) {
+                    $.get('https://curiouslynx.github.io/kwork-chart/json/imoex/' + tf + '.json', function (rawData) {
                         data2 = [];
                         for (let i = 0; i < rawData.length; i++) data2.push(rawData[i][4]);
                         option.series[1].data = data2;
