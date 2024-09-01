@@ -9,10 +9,10 @@
   <title>Equity curve random generator</title>
   <script src="dist/https.js"></script>
   <script type="text/javascript" >
-     (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
-     for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-     k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-     ym(88927473, "init", {clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true});
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
+    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    ym(88927473, "init", {clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true});
   </script>
   <noscript><div><img src="https://mc.yandex.ru/watch/88927473" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.min.js"></script>
@@ -54,7 +54,7 @@
       <a class="p-2 text-dark" href="quotes.html">Quotes analysis</a>
       <a class="p-2 text-dark" href="equity.html">Equity generator</a>
     </nav>
-    <a class="btn btn-outline-primary" target="_blank" href="https://t.me/MarketPulse3" style="color:white;background-color:#006AFF;">Telegram</a>
+    <a class="btn btn-outline-primary" target="_blank" href="https://t.me/MarketPulse3" onclick="ym(88927473,'reachGoal','btn-tg-equity');return true;" style="color:white;background-color:#006AFF;">Telegram</a>
   </div>
 
 
@@ -80,7 +80,7 @@
       <BR>
       Line highlighting:<input type="checkbox" id="ch1">
       Show legend:<input type="checkbox" id="ch2">
-      <input id="generate" type="button" class="btn btn-outline-primary" value="Generate" title="Generate" onclick="ym(88927473,'reachGoal','TargetId01');return true;">
+      <input id="generate" type="button" class="btn btn-outline-primary" value="Generate" title="Generate" onclick="ym(88927473,'reachGoal','btn-generate');return true;">
 
     </div>
 
